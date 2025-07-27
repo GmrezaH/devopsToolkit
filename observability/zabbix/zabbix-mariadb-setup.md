@@ -39,23 +39,18 @@
    - Zabbix server: 10051/TCP
    - Zabbix agent: 10050/TCP
    - MariaDB: 3306/TCP
-   - HAProxy: 80/TCP, 443/TCP, 9600/TCP (MaxScale)
-   - Corosync/Pacemaker: 2224/TCP, 3121/TCP, 21064/TCP
+   - Maxscale: 3307/TCP
 
 # Install MariaDB
 
 1. Add the [MariaDB Repository](https://mariadb.org/download/?t=repo-config) in **/etc/yum.repos.d/mariadb.repo**
 
    ```ini
-   # MariaDB 11.4 RedHatEnterpriseLinux repository list - created 2025-07-22 13:24 UTC
    # https://mariadb.org/download/
    [mariadb]
    name = MariaDB
-   # rpm.mariadb.org is a dynamic mirror if your preferred mirror goes offline. See https://mariadb.org/mirrorbits/ for details.
-   # baseurl = https://rpm.mariadb.org/11.4/rhel/$releasever/$basearch
-   baseurl = https://atl.mirrors.knownhost.com/mariadb/yum/11.4/rhel/$releasever/$basearch
-   # gpgkey = https://rpm.mariadb.org/RPM-GPG-KEY-MariaDB
-   gpgkey = https://atl.mirrors.knownhost.com/mariadb/yum/RPM-GPG-KEY-MariaDB
+   baseurl = https://rpm.mariadb.org/11.4/rhel/$releasever/$basearch
+   gpgkey = https://rpm.mariadb.org/RPM-GPG-KEY-MariaDB
    gpgcheck = 1
    ```
 
