@@ -299,15 +299,14 @@
    maxctrl list monitors
    ```
 
-> **_NOTE:_** Switchover is for cases when you explicitly want to move the primary
-> role from one server to another
+> [!NOTE] Switchover is for cases when you explicitly want to move the primary role from one server to another
 
 ```bash
 maxctrl call command mariadbmon switchover $MONITOR_NAME $SLAVE_NAME $MASTER_NAME
 maxctrl call command mariadbmon switchover MariaDB-Cluster server1 server2
 ```
 
-> **_NOTE:_** if auto_failover is **not enabled**, the failover mechanism must be invoked manually:
+> [!NOTE] if auto_failover is **not enabled**, the failover mechanism must be invoked manually:
 
 ```bash
 maxctrl call command mariadbmon failover $MONITOR_NAME
@@ -430,3 +429,5 @@ maxctrl call command mariadbmon failover MariaDB-Cluster
 1. Preparing frontend
 
    Make sure that `Zabbix server address:port` is **not defined** in the frontend configuration (found in **/etc/zabbix/web/zabbix.conf.php**)
+
+# Install Keepalived
