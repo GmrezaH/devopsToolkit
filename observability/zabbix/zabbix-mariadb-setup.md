@@ -433,4 +433,18 @@ maxctrl call command mariadbmon failover MariaDB-Cluster
 
    Make sure that `Zabbix server address:port` is **not defined** in the frontend configuration (found in **/etc/zabbix/web/zabbix.conf.php**)
 
+1. Agent configuration
+
+   To enable passive checks, the node names must be listed in the Server parameter, separated by a comma.
+
+   ```
+   Server=zabbix-node-01,zabbix-node-02
+   ```
+
+   To enable active checks, the node names must be listed in the ServerActive parameter. Note that for active checks the nodes must be separated by a comma from any other servers, while the nodes themselves must be separated by a semicolon, e.g.:
+
+   ```
+   ServerActive=zabbix-node-01;zabbix-node-02
+   ```
+
 # Install Keepalived
