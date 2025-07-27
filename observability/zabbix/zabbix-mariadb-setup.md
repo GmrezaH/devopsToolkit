@@ -299,14 +299,16 @@
    maxctrl list monitors
    ```
 
-> [!NOTE] Switchover is for cases when you explicitly want to move the primary role from one server to another
+> [!NOTE]
+> Switchover is for cases when you explicitly want to move the primary role from one server to another
 
 ```bash
 maxctrl call command mariadbmon switchover $MONITOR_NAME $SLAVE_NAME $MASTER_NAME
 maxctrl call command mariadbmon switchover MariaDB-Cluster server1 server2
 ```
 
-> [!NOTE] if auto_failover is **not enabled**, the failover mechanism must be invoked manually:
+> [!NOTE]
+> if auto_failover is **not enabled**, the failover mechanism must be invoked manually:
 
 ```bash
 maxctrl call command mariadbmon failover $MONITOR_NAME
