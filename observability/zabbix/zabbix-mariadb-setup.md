@@ -40,6 +40,7 @@
    - Zabbix agent: 10050/TCP
    - MariaDB: 3306/TCP
    - Maxscale: 3307/TCP
+   - Nginx (or httpd): 80/TCP, 443/TCP
 
 # Install MariaDB
 
