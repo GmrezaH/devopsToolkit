@@ -122,8 +122,9 @@
    ```sql
    FLUSH TABLES WITH READ LOCK;
    SHOW GLOBAL VARIABLES LIKE 'gtid_binlog_pos';
+   -- or
    SHOW MASTER STATUS;
-   SELECT BINLOG_GTID_POS("master1-bin.000001", 600);
+   SELECT BINLOG_GTID_POS("master1-bin.000001", 600); -- values obtained from previous query
    ```
 
    Keep this session running - exiting it will release the lock.
@@ -270,8 +271,6 @@
    monitor_interval=5s
    auto_failover=true
    auto_rejoin=true
-   #failover_timeout=30
-   #switchover_timeout=30
    replication_user=replication_user
    replication_password=bigs3cret
 
