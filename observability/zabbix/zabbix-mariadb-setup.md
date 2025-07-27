@@ -254,10 +254,12 @@
    [server1]
    type=server
    address=192.168.7.101
+   port=3306
 
    [server2]
    type=server
    address=192.168.7.102
+   port=3306
 
    [MariaDB-Cluster]
    type=monitor
