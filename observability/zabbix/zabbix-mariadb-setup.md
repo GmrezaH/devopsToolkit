@@ -309,7 +309,7 @@ maxctrl call command mariadbmon switchover MariaDB-Cluster server1 server2
 ```
 
 > [!NOTE]
-> if auto_failover is **not enabled**, the failover mechanism must be invoked manually:
+> If auto_failover is **not enabled**, the failover mechanism must be invoked manually:
 
 ```bash
 maxctrl call command mariadbmon failover $MONITOR_NAME
