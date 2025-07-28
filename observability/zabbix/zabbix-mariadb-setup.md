@@ -419,8 +419,8 @@ maxctrl call command mariadbmon failover MariaDB-Cluster
    Restart all Zabbix servers after making changes to the configuration files
 
    ```bash
-   systemctl restart zabbix-server zabbix-agent2 nginx php-fpm
-   systemctl enable zabbix-server zabbix-agent2 nginx php-fpm
+   systemctl restart zabbix-server
+   systemctl enable zabbix-server
    ```
 
    The new status of the servers can be seen in `Reports → System information` and by running:
