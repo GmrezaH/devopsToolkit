@@ -338,13 +338,13 @@ maxctrl call command mariadbmon failover MariaDB-Cluster
 1. Install Zabbix server, frontend, agent2
 
    ```bash
-   dnf install -y zabbix-server-mysql zabbix-web-mysql zabbix-nginx-conf zabbix-sql-scripts zabbix-selinux-policy zabbix-agent2
+   sudo dnf install -y zabbix-server-mysql zabbix-web-mysql zabbix-nginx-conf zabbix-sql-scripts zabbix-selinux-policy zabbix-agent2
    ```
 
 1. Install Zabbix agent 2 plugins
 
    ```bash
-   dnf install -y zabbix-agent2-plugin-mongodb zabbix-agent2-plugin-mssql zabbix-agent2-plugin-postgresql
+   sudo dnf install -y zabbix-agent2-plugin-mongodb zabbix-agent2-plugin-mssql zabbix-agent2-plugin-postgresql
    ```
 
 1. Create initial database
