@@ -78,9 +78,9 @@
    mariadb -u root -p
    ```
 
-## Configure MariaDB Replication (Master-Slave with GTID)
+## Configure MariaDB Replication (GTID-based)
 
-### Master Configuration (First VM)
+### Master Configuration
 
 1. Edit /etc/my.cnf.d/server.cnf
 
@@ -138,7 +138,7 @@
    scp mariadb-master.sql rocky@zabbix-2:~
    ```
 
-### Slave Configuration (Second VM)
+### Slave Configuration
 
 1. Edit /etc/my.cnf.d/server.cnf
 
@@ -376,8 +376,8 @@ maxctrl call command mariadbmon failover MariaDB-Cluster
 
    ```
    LogFileSize=256
-   DBHost=zabbix-2.novalocal   # Maxscale host
-   DBPort=3307                 # Maxscale Port
+   DBHost=zabbix-2.example.com   # Maxscale host
+   DBPort=3307                   # Maxscale Port
    DBName=zabbix
    DBUser=zabbix
    DBPassword=password
@@ -396,7 +396,7 @@ maxctrl call command mariadbmon failover MariaDB-Cluster
 
    The URL for Zabbix UI when using Nginx depends on the configuration changes you should have made.
 
-   Enter the user name **Admin** with password **zabbix** to log in as a Zabbix superuser. Access to all menu sections will be granted.
+   Enter the user name `Admin` with password `zabbix` to log in as a Zabbix superuser. Access to all menu sections will be granted.
 
    For security reasons, it is strongly recommended to change the default password for the Admin account immediately after the first login.
 
@@ -448,3 +448,5 @@ maxctrl call command mariadbmon failover MariaDB-Cluster
    ```
 
 # Install Keepalived
+
+# Install Zabbix Proxy
