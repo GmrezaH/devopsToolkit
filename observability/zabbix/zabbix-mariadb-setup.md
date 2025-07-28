@@ -213,7 +213,7 @@
 1. Download and Install [Maxscale package](https://dlm.mariadb.com/browse/mariadbmaxscale/)
 
    ```bash
-   dnf install -y https://dlm.mariadb.com/4296983/MaxScale/24.02.6/packages/rocky/9/x86_64/maxscale-24.02.6-1.rhel.9.x86_64.rpm
+   sudo dnf install -y https://dlm.mariadb.com/4296983/MaxScale/24.02.6/packages/rocky/9/x86_64/maxscale-24.02.6-1.rhel.9.x86_64.rpm
    ```
 
 1. Create the maxscale_monitor user on your backend MariaDB servers with appropriate privileges
