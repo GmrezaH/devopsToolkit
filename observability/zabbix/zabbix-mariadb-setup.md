@@ -331,8 +331,8 @@ maxctrl call command mariadbmon failover MariaDB-Cluster
    Proceed with installing zabbix repository.
 
    ```bash
-   rpm -Uvh https://repo.zabbix.com/zabbix/7.4/release/rocky/9/noarch/zabbix-release-latest-7.4.el9.noarch.rpm
-   dnf clean all
+   sudo rpm -Uvh https://repo.zabbix.com/zabbix/7.4/release/rocky/9/noarch/zabbix-release-latest-7.4.el9.noarch.rpm
+   sudo dnf clean all
    ```
 
 1. Install Zabbix server, frontend, agent2
