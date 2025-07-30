@@ -29,60 +29,69 @@ Host <alias>
 
 ## Sample configurations
 
-1. ProxyJump
+### 1. ProxyJump
 
-   ProxyJump allows SSH to connect to a target server through a bastion host (jump server)
+ProxyJump allows SSH to connect to a target server through a bastion host (jump server)
 
-   ```
-   Host bastion
-       HostName bastion.example.com
-       User bastionuser
-       Port 22
-       IdentityFile ~/.ssh/bastion_key
+```
+Host bastion
+    HostName bastion.example.com
+    User bastionuser
+    Port 22
+    IdentityFile ~/.ssh/bastion_key
 
-   Host internal
-       HostName 10.0.0.5
-       User internaluser
-       Port 22
-       IdentityFile ~/.ssh/internal_key
-       ProxyJump bastion
-   ```
+Host internal
+    HostName 10.0.0.5
+    User internaluser
+    Port 22
+    IdentityFile ~/.ssh/internal_key
+    ProxyJump bastion
+```
 
-2. ProxyCommand
+**Usage**: Run `ssh internal` to connect to `10.0.0.5` via `bastion.example.com`.
 
-   When the bastion host requires a different user or port, or for older SSH versions that don’t support `ProxyJump`, use ProxyCommand with nc (netcat) or ssh
+### 2. ProxyCommand
 
-   ```
-   Host internal
-       HostName 10.0.0.5
-       User internaluser
-       Port 22
-       IdentityFile ~/.ssh/internal_key
-       ProxyCommand ssh -W %h:%p -q {BASTION_USER}:{BASTION_HOST}
-   ```
+When the bastion host requires a different user or port, or for older SSH versions that don’t support `ProxyJump`, use ProxyCommand with nc (netcat) or ssh
 
-3. LocalForward for Port Forwarding
+```
+Host internal
+    HostName 10.0.0.5
+    User internaluser
+    Port 22
+    IdentityFile ~/.ssh/internal_key
+    ProxyCommand ssh -W %h:%p -q {BASTION_USER}:{BASTION_HOST}
+```
 
-   LocalForward binds a local port to a remote server’s port, allowing you to access services on the remote server as if they were running locally.
+**Usage**: Run `ssh internal` to connect to `10.0.0.5` through `bastion`.
 
-   ```
-   Host myserver
-       HostName example.com
-       User johndoe
-       Port 22
-       IdentityFile ~/.ssh/id_rsa
-       LocalForward 8080 localhost:80
-   ```
+> [!Note]
+> Ensure `nc` or `ssh -W` is available on the bastion host.
 
-4. Using wildcards
+### 3. LocalForward for Port Forwarding
 
-   You can use wildcards to apply settings to multiple hosts
+LocalForward binds a local port to a remote server’s port, allowing you to access services on the remote server as if they were running locally.
 
-   ```
-   Host *.example.com
-       User shareduser
-       IdentityFile ~/.ssh/example_key
-   ```
+```
+Host myserver
+    HostName example.com
+    User johndoe
+    Port 22
+    IdentityFile ~/.ssh/id_rsa
+    LocalForward 8080 localhost:80
+```
+
+**Usage**: Run `ssh myserver`, then access `http://localhost:8080` on your local machine to connect to port 80 on `example.com`.
+
+### 4. Using wildcards
+
+You can use wildcards to apply settings to multiple hosts
+
+```
+Host *.example.com
+    User shareduser
+    IdentityFile ~/.ssh/example_key
+```
 
 ## Resources
 
