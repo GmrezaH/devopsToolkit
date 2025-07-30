@@ -32,8 +32,6 @@
    )
    ```
 
-1. Start a new terminal session.
-
 ## zsh-syntax-highlighting
 
 1. Clone this repository in oh-my-zsh's plugins directory
@@ -48,7 +46,5 @@
    plugins=( [plugins...] zsh-syntax-highlighting)
    ```
 
-   > [!NOTE]
-   > zsh-syntax-highlighting must be the last plugin sourced
-
-1. Restart zsh (such as by opening a new instance of your terminal emulator).
+> [!NOTE]
+> zsh-syntax-highlighting must be the last plugin sourced
