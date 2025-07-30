@@ -135,7 +135,7 @@
 
    ```bash
    mariadb-dump -uroot -p --all-databases > mariadb-master.sql
-   scp mariadb-master.sql rocky@zabbix-2:~
+   scp mariadb-master.sql root@zabbix-2:~
    ```
 
 ### Slave Configuration
