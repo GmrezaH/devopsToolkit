@@ -81,7 +81,7 @@ Host myserver
     LocalForward 8080 localhost:80
 ```
 
-**Usage**: Run `ssh myserver`, then access `http://localhost:8080` on your local machine to connect to port 80 on `example.com`.
+**Usage**: Run `ssh -f -N myserver`, then access `http://localhost:8080` on your local machine to connect to port 80 on `example.com`.
 
 ### 4. Using wildcards
 
