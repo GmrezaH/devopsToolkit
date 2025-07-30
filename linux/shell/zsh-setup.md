@@ -48,7 +48,7 @@
    plugins=( [plugins...] zsh-syntax-highlighting)
    ```
 
-> [!NOTE]
-> zsh-syntax-highlighting must be the last plugin sourced
+   > [!NOTE]
+   > zsh-syntax-highlighting must be the last plugin sourced
 
 1. Restart zsh (such as by opening a new instance of your terminal emulator).
