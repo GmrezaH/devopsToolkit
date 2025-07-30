@@ -25,13 +25,13 @@ Host <alias>
 ```
 
 > [!NOTE]
-> Note that keywords are case-insensitive and arguments are case-sensitive
+> Note that keywords are case-insensitive and arguments are case-sensitive.
 
 ## Sample configurations
 
 ### 1. ProxyJump
 
-ProxyJump allows SSH to connect to a target server through a bastion host (jump server)
+ProxyJump allows SSH to connect to a target server through a bastion host (jump server).
 
 ```
 Host bastion
@@ -52,7 +52,7 @@ Host internal
 
 ### 2. ProxyCommand
 
-When the bastion host requires a different user or port, or for older SSH versions that don’t support `ProxyJump`, use ProxyCommand with nc (netcat) or ssh
+When the bastion host requires a different user or port, or for older SSH versions that don’t support `ProxyJump`, use ProxyCommand with nc (netcat) or ssh.
 
 ```
 Host internal
@@ -85,7 +85,7 @@ Host myserver
 
 ### 4. Using wildcards
 
-You can use wildcards to apply settings to multiple hosts
+You can use wildcards to apply settings to multiple hosts.
 
 ```
 Host *.example.com
