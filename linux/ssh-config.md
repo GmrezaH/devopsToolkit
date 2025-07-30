@@ -1,3 +1,36 @@
+# Create and use a custom SSH keypair
+
+## Generate the SSH keypair
+
+Run the following command to create a new SSH keypair:
+
+```bash
+ssh-keygen -t ed25519 -C "your_email@example.com" -f ~/.ssh/service_specific_key
+```
+
+> [!NOTE]
+> If you are using a legacy system that doesn't support the Ed25519 algorithm, use:
+>
+> ```bash
+> ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f ~/.ssh/service_specific_key
+> ```
+
+## Add the public key to the destination server
+
+Use ssh-copy-id to add the public key to the destination server’s ~/.ssh/authorized_keys file.
+
+```bash
+ssh-copy-id -i ~/.ssh/service_specific_key.pub user@hostname
+```
+
+## Configure SSH to use the key
+
+Add the key to your SSH agent.
+
+```bash
+ssh-add ~/.ssh/service_specific_key
+```
+
 # SSH config
 
 The SSH configuration file (`~/.ssh/config`) allows you to define connection settings for SSH clients, making it easier to connect to remote servers without repeatedly specifying options like hostnames, usernames, ports, or keys.
