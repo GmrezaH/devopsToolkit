@@ -23,7 +23,7 @@
    git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
    ```
 
-1. Add the plugin to the list of plugins for Oh My Zsh to load (inside `~/.zshrc`):
+1. Add the plugin to the list of plugins for Oh My Zsh to load (inside `~/.zshrc`)
 
    ```
    plugins=(
@@ -36,16 +36,19 @@
 
 ## zsh-syntax-highlighting
 
-1. Clone this repository in oh-my-zsh's plugins directory:
+1. Clone this repository in oh-my-zsh's plugins directory
 
    ```bash
    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
    ```
 
-1. Activate the plugin in ~/.zshrc (Note that zsh-syntax-highlighting must be the `last plugin sourced`):
+1. Activate the plugin in ~/.zshrc
 
    ```
    plugins=( [plugins...] zsh-syntax-highlighting)
    ```
+
+> [!NOTE]
+> zsh-syntax-highlighting must be the last plugin sourced
 
 1. Restart zsh (such as by opening a new instance of your terminal emulator).
