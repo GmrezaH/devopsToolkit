@@ -397,3 +397,7 @@ The Helm chart defined a Kubernetes service named vault that forwards requests t
       --header "X-Vault-Token: $CLUSTER_ROOT_TOKEN" \
       https://127.0.0.1:8200/v1/secret/data/tls/apitest | jq .data.data
    ```
+
+## Resources
+
+- [Official Hashicorp Vault docs](https://developer.hashicorp.com/vault/docs/deploy/kubernetes/helm)
