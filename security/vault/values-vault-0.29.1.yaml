@@ -13,22 +13,17 @@ global:
 
 injector:
   enabled: "-"
-
   replicas: 1
-
   # If true, will enable a node exporter metrics endpoint at /metrics.
   metrics:
     enabled: true
-
   image:
     repository: "hashicorp/vault-k8s"
     tag: "1.5.0"
     pullPolicy: IfNotPresent
-
   agentImage:
     repository: "hashicorp/vault"
     tag: "1.18.1"
-
   agentDefaults:
     cpuLimit: "500m"
     cpuRequest: "250m"
@@ -73,7 +68,6 @@ server:
         #                port:
         #                  number: 8200
         #
-
     ## Extra paths to prepend to the host configuration. This is useful when working with annotation based services.
     extraPaths:
     - path: /ui
@@ -87,7 +81,6 @@ server:
     #  - secretName: chart-example-tls
     #    hosts:
     #      - chart-example.local
-
   readinessProbe:
     enabled: true
     path: "/v1/sys/health?standbyok=true&sealedcode=204&uninitcode=204"
@@ -95,30 +88,29 @@ server:
     enabled: true
     path: "/v1/sys/health?standbyok=true"
     initialDelaySeconds: 60
-
   extraEnvironmentVars:
     VAULT_CACERT: /vault/userconfig/vault-server-tls/vault.ca
     VAULT_TLSCERT: /vault/userconfig/vault-server-tls/vault.crt
     VAULT_TLSKEY: /vault/userconfig/vault-server-tls/vault.key
-
   volumes:
     - name: userconfig-vault-server-tls
       secret:
         defaultMode: 420
-        secretName: vault-server-tls # Matches the ${SECRET_NAME} from above
-
+        secretName: vault-server-tls # Matches the ${SECRET_NAME} from README.md
   volumeMounts: 
     - mountPath: /vault/userconfig/vault-server-tls
       name: userconfig-vault-server-tls
       readOnly: true
-
   dataStorage:
     enabled: true
-    size: 5Gi
-
+    size: 5Gi    
+    storageClass: null
+    accessMode: ReadWriteOnce
   auditStorage:
     enabled: true
     size: 5Gi
+    storageClass: null
+    accessMode: ReadWriteOnce
 
   ha:
     enabled: true
@@ -177,7 +169,6 @@ csi:
     limits:
       cpu: 50m
       memory: 128Mi
-
   agent:
     enabled: true
     image:
@@ -194,13 +185,11 @@ csi:
         memory: 256Mi
         cpu: 250m
 
-
 serverTelemetry:
   serviceMonitor:
     enabled: true
     selectors:
       release: prometheus-stack
-
   prometheusRules:
       enabled: true
       selectors:
