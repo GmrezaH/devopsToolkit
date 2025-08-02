@@ -203,10 +203,10 @@ This deployment guide covers the steps required to install and configure a HA Ha
 
 Wait for a few minutes and initialize and unseal `vault-0` pod.
 
-1. Initialize `vault-0` with 5 key share and 3 key threshold.
+> [!CAUTION]
+> Do not run an unsealed Vault in production with a single key share and a single key threshold.
 
-   > [!CAUTION]
-   > Do not run an unsealed Vault in production with a single key share and a single key threshold.
+1. Initialize `vault-0` with 5 key share and 3 key threshold.
 
    ```bash
    kubectl exec -n $NAMESPACE vault-0 -- vault operator init \
@@ -215,11 +215,7 @@ Wait for a few minutes and initialize and unseal `vault-0` pod.
        -format=json > ${WORKDIR}/cluster-keys.json
    ```
 
-   > [!NOTE]
-   > The `operator init` command generates a root key that it disassembles into key shares `-key-shares=5` and then sets the number of key shares required to unseal Vault `-key-threshold=1`. These key shares are written to the output as unseal keys in JSON format `-format=json`. Here the output is redirected to a file named `cluster-keys.json`.
-
-   > [!IMPORTANT]
-   > Store Unseal keys and Root key SECURELY
+   The `operator init` command generates a root key that it disassembles into key shares `-key-shares=5` and then sets the number of key shares required to unseal Vault `-key-threshold=1`. These key shares are written to the output as unseal keys in JSON format `-format=json`. Here the output is redirected to a file named `cluster-keys.json`.
 
 1. Create variables to capture the Vault unseal key.
 
@@ -324,6 +320,9 @@ Login to vault and confirm everything is working
    ```bash
    kubectl -n vault exec vault-0 -- vault status
    ```
+
+> [!IMPORTANT]
+> Store Unseal keys and Root key **SECURELY**
 
 ## Test
 
