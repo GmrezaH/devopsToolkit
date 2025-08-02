@@ -1,4 +1,4 @@
-# Deploy Zabbix with MariaDB
+# Deploying Zabbix with MariaDB
 
 ## Pre-install
 

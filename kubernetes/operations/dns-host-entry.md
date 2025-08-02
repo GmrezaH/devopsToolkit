@@ -1,3 +1,5 @@
+# Adding custom host entry to Nodelocal DNS cache
+
 1. Edit the nodelocaldns configmap
 
    ```bash
