@@ -1,0 +1,222 @@
+global:
+  enabled: true
+  tlsDisable: false
+  serverTelemetry:
+    prometheusOperator: true
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 250m
+    limits:
+      memory: 256Mi
+      cpu: 250m
+
+injector:
+  enabled: "-"
+
+  replicas: 1
+
+  # If true, will enable a node exporter metrics endpoint at /metrics.
+  metrics:
+    enabled: true
+
+  image:
+    repository: "hashicorp/vault-k8s"
+    tag: "1.5.0"
+    pullPolicy: IfNotPresent
+
+  agentImage:
+    repository: "hashicorp/vault"
+    tag: "1.18.1"
+
+  agentDefaults:
+    cpuLimit: "500m"
+    cpuRequest: "250m"
+    memLimit: "128Mi"
+    memRequest: "64Mi"
+
+server:
+  enabled: "-"
+  image:
+    repository: "hashicorp/vault"
+    tag: "1.18.1"
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 250m
+    limits:
+      memory: 1Gi
+      cpu: 500m
+  ingress:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: ca-issuer
+      nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+      nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    ingressClassName: "nginx"
+    pathType: Prefix
+    # When HA mode is enabled and K8s service registration is being used,
+    # configure the ingress to point to the Vault active service.
+    activeService: true
+    hosts:
+      - host: vault.example.com
+        paths: []
+        #      - host: vault-ui.testbed.cid
+        #        paths:
+        #          - path: /
+        #            pathType: Prefix
+        #            backend:
+        #              service:
+        #                name: vault-ui
+        #                port:
+        #                  number: 8200
+        #
+
+    ## Extra paths to prepend to the host configuration. This is useful when working with annotation based services.
+    extraPaths:
+    - path: /ui
+      pathType: Prefix
+      backend:
+        service:
+          name: vault-ui
+          port:
+            number: 8200
+    tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
+
+  readinessProbe:
+    enabled: true
+    path: "/v1/sys/health?standbyok=true&sealedcode=204&uninitcode=204"
+  livenessProbe:
+    enabled: true
+    path: "/v1/sys/health?standbyok=true"
+    initialDelaySeconds: 60
+
+  extraEnvironmentVars:
+    VAULT_CACERT: /vault/userconfig/vault-server-tls/vault.ca
+    VAULT_TLSCERT: /vault/userconfig/vault-server-tls/vault.crt
+    VAULT_TLSKEY: /vault/userconfig/vault-server-tls/vault.key
+
+  volumes:
+    - name: userconfig-vault-server-tls
+      secret:
+        defaultMode: 420
+        secretName: vault-server-tls # Matches the ${SECRET_NAME} from above
+
+  volumeMounts: 
+    - mountPath: /vault/userconfig/vault-server-tls
+      name: userconfig-vault-server-tls
+      readOnly: true
+
+  dataStorage:
+    enabled: true
+    size: 5Gi
+
+  auditStorage:
+    enabled: true
+    size: 5Gi
+
+  ha:
+    enabled: true
+    replicas: 3
+    raft:
+      enabled: true
+      setNodeId: true
+      config: |
+        ui = true
+        cluster_name = "vault-integrated-storage"
+        listener "tcp" {
+          tls_disable = 0
+          address = "[::]:8200"
+          cluster_address = "[::]:8201"
+          tls_cert_file = "/vault/userconfig/vault-server-tls/vault.crt"
+          tls_key_file  = "/vault/userconfig/vault-server-tls/vault.key"
+          tls_client_ca_file = "/vault/userconfig/vault-server-tls/vault.ca"
+          # Enable unauthenticated metrics access (necessary for Prometheus Operator)
+          telemetry {
+            unauthenticated_metrics_access = "true"
+          }
+        }
+        storage "raft" {
+          path = "/vault/data"
+          retry_join {
+            leader_api_addr = "https://vault-active:8200"
+            leader_ca_cert_file = "/vault/userconfig/vault-server-tls/vault.crt"
+            leader_client_cert_file = "/vault/userconfig/vault-server-tls/vault.crt"
+            leader_client_key_file = "/vault/userconfig/vault-server-tls/vault.key"
+          }
+        }
+        telemetry {
+          prometheus_retention_time = "1h"
+          disable_hostname = true
+        }
+        disable_mlock = false
+        service_registration "kubernetes" {}
+
+ui:
+  enabled: true
+  serviceType: "ClusterIP"
+  serviceNodePort: null
+  externalPort: 8200
+  targetPort: 8200
+
+csi:
+  enabled: true
+  image:
+    repository: "hashicorp/vault-csi-provider"
+    tag: "1.5.0"
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 50m
+      memory: 128Mi
+
+  agent:
+    enabled: true
+    image:
+      repository: "hashicorp/vault"
+      tag: "1.18.1"
+      pullPolicy: IfNotPresent
+    logFormat: standard
+    logLevel: info
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 250m
+      limits:
+        memory: 256Mi
+        cpu: 250m
+
+
+serverTelemetry:
+  serviceMonitor:
+    enabled: true
+    selectors:
+      release: prometheus-stack
+
+  prometheusRules:
+      enabled: true
+      selectors:
+        release: prometheus-stack
+      rules: 
+        - alert: vault-HighResponseTime
+          annotations:
+            message: The response time of Vault is over 500ms on average over the last 5 minutes.
+          expr: vault_core_handle_request{quantile="0.5", namespace="mynamespace"} > 500
+          for: 5m
+          labels:
+            severity: warning
+        - alert: vault-HighResponseTime
+          annotations:
+            message: The response time of Vault is over 1s on average over the last 5 minutes.
+          expr: vault_core_handle_request{quantile="0.5", namespace="mynamespace"} > 1000
+          for: 5m
+          labels:
+            severity: critical
