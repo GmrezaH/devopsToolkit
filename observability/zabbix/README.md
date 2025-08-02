@@ -1,4 +1,6 @@
-# Pre-install
+# Deploy Zabbix with MariaDB
+
+## Pre-install
 
 1. Check [Zabbix official requirements](https://www.zabbix.com/documentation/current/en/manual/installation/requirements)
 
@@ -42,7 +44,7 @@
    - Maxscale: 3307/TCP
    - Nginx (or httpd): 80/TCP, 443/TCP
 
-# Install MariaDB
+## Install MariaDB
 
 1. Add the [MariaDB Repository](https://mariadb.org/download/?t=repo-config) in **/etc/yum.repos.d/mariadb.repo**
 
@@ -78,9 +80,9 @@
    mariadb -u root -p
    ```
 
-## Configure MariaDB Replication (GTID-based)
+### Configure MariaDB Replication (GTID-based)
 
-### Master Configuration
+#### Master Configuration
 
 1. Edit /etc/my.cnf.d/server.cnf
 
@@ -138,7 +140,7 @@
    scp mariadb-master.sql root@zabbix-2:~
    ```
 
-### Slave Configuration
+#### Slave Configuration
 
 1. Edit /etc/my.cnf.d/server.cnf
 
@@ -208,7 +210,7 @@
    Slave_SQL_Running: Yes
    ```
 
-# Install Maxscale
+## Install Maxscale
 
 1. Download and Install [Maxscale package](https://dlm.mariadb.com/browse/mariadbmaxscale/)
 
@@ -316,7 +318,7 @@ maxctrl call command mariadbmon failover $MONITOR_NAME
 maxctrl call command mariadbmon failover MariaDB-Cluster
 ```
 
-# Install Zabbix
+## Install Zabbix
 
 1. Install Zabbix repository
 
@@ -400,7 +402,7 @@ maxctrl call command mariadbmon failover MariaDB-Cluster
 
    For security reasons, it is strongly recommended to change the default password for the Admin account immediately after the first login.
 
-## Enabling high availability
+### Enabling high availability
 
 1. Start Zabbix server as cluster node
 
@@ -447,6 +449,6 @@ maxctrl call command mariadbmon failover MariaDB-Cluster
    ServerActive=zabbix-node-01;zabbix-node-02
    ```
 
-# Install Keepalived
+## Install Keepalived
 
-# Install Zabbix Proxy
+## Install Zabbix Proxy

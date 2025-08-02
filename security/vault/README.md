@@ -210,7 +210,7 @@ This guide outlines the steps to deploy HashiCorp Vault in a Kubernetes cluster 
 1. Display the pods in the namespace that you created for vault.
 
    ```bash
-   kubectl -n $VAULT_K8S_NAMESPACE get pods
+   kubectl -n $NAMESPACE get pods
    ```
 
 ### Initialize and Unseal `vault-0`
