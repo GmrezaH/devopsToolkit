@@ -14,7 +14,7 @@ This guide outlines the steps to deploy HashiCorp Vault in a Kubernetes cluster 
 | jq               | 1.7.x   |
 
 > [!NOTE]
-> his guide has been personally tested with the versions listed above. It may work with other versions, but compatibility is not guaranteed. For complete details and version-specific guidance, refer to the official HashiCorp Vault documentation and Kubernetes documentation.
+> This guide has been personally tested with the versions listed above. It may work with other versions, but compatibility is not guaranteed. For complete details and version-specific guidance, refer to the official HashiCorp Vault documentation and Kubernetes documentation.
 
 ## Install the Vault Helm chart
 
