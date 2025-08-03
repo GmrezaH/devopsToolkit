@@ -374,6 +374,50 @@ Login to vault and confirm everything is working
    exit
    ```
 
+### Create Policy and Token
+
+While the root policy provides full access to Vault, it is not recommended to use it for user operations. Instead, you should create a policy that allows user to access Vault.
+
+1. Start an interactive shell session on the vault-0 pod.
+
+   ```bash
+   kubectl exec -n $VAULT_K8S_NAMESPACE -it vault-0 -- /bin/sh
+   ```
+
+   **Your system prompt is replaced with a new prompt / $.**
+
+1. Define the user policy in the file named `test-policy.hcl`.
+
+   ```hcl
+   path "secret/tls/apitest" {
+     capabilities = ["read"]
+   }
+   ```
+
+1. (Optional) Use the vault policy fmt command to format the policy file. This command ensures proper formatting and indentation of the policy file.
+
+   ```sh
+   vault policy fmt test-policy.hcl
+   ```
+
+1. Use the `vault policy write` command to create a policy named `kv` with the policy defined in kv-policy.hcl file.
+
+   ```sh
+   vault policy write test-policy test-policy.hcl
+   ```
+
+1. Create a token with the `test-policy` policy attached and store the token in the variable `TEST_TOKEN`.
+
+   ```sh
+   TEST_TOKEN=$(vault token create -format=json -policy="test-policy" | jq -r ".auth.client_token")
+   ```
+
+1. Display the token
+
+   ```sh
+   echo $TEST_TOKEN
+   ```
+
 ### Expose the vault service and retrieve the secret via the API
 
 The Helm chart defined a Kubernetes service named vault that forwards requests to its endpoints (i.e. The pods named vault-0, vault-1, and vault-2).
@@ -394,10 +438,12 @@ The Helm chart defined a Kubernetes service named vault that forwards requests t
 
    ```bash
    curl --cacert $TMPDIR/vault.ca \
-      --header "X-Vault-Token: $CLUSTER_ROOT_TOKEN" \
+      --header "X-Vault-Token: $TEST_TOKEN" \
       https://127.0.0.1:8200/v1/secret/data/tls/apitest | jq .data.data
    ```
 
 ## Resources
 
 - [Official Hashicorp Vault docs](https://developer.hashicorp.com/vault/docs/deploy/kubernetes/helm)
+
+- [Hashicorp Policies tutorials](https://developer.hashicorp.com/vault/tutorials/policies/policies)
