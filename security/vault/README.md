@@ -446,6 +446,9 @@ The Helm chart defined a Kubernetes service named vault that forwards requests t
 
 ## Resources
 
+> [!TIP]
+> Check out [Hashicorp Vault production hardening doc](https://developer.hashicorp.com/vault/docs/concepts/production-hardening) for production setup best practices
+
 - [Official Hashicorp Vault docs](https://developer.hashicorp.com/vault/docs/deploy/kubernetes/helm)
 
 - [Hashicorp Policies tutorials](https://developer.hashicorp.com/vault/tutorials/policies/policies)
