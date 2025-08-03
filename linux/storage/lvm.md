@@ -1,4 +1,6 @@
-# Separate or Extend /var
+# Separate or Extend a partition
+
+This document provides a step-by-step guide to separating a directory (e.g., moving it to a new partition or disk) or extending its storage capacity (e.g., using LVM or resizing partitions) in a Linux environment. For simplicity, the examples use the /var directory, but the process can be applied to any other partition or directory, such as /home, /tmp, or custom paths.
 
 ## Check current `/var` partition
 
