@@ -388,22 +388,24 @@ While the root policy provides full access to Vault, it is not recommended to us
 
 1. Define the user policy in the file named `test-policy.hcl`.
 
-   ```hcl
+   ```sh
+   tee /tmp/test-policy.hcl <<EOF
    path "secret/tls/apitest" {
      capabilities = ["read"]
    }
+   EOF
    ```
 
 1. (Optional) Use the vault policy fmt command to format the policy file. This command ensures proper formatting and indentation of the policy file.
 
    ```sh
-   vault policy fmt test-policy.hcl
+   vault policy fmt /tmp/test-policy.hcl
    ```
 
 1. Use the `vault policy write` command to create a policy named `kv` with the policy defined in kv-policy.hcl file.
 
    ```sh
-   vault policy write test-policy test-policy.hcl
+   vault policy write test-policy /tmp/test-policy.hcl
    ```
 
 1. Create a token with the `test-policy` policy attached and store the token in the variable `TEST_TOKEN`.
