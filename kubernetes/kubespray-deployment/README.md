@@ -28,13 +28,6 @@ The diagram below illustrates the deployment architecture used by Kubespray:
   <img src="../../images/kubespray.png" alt="Kubespray Architecture" />
 </div>
 
-## Table of Contents
-
-- [Prerequisites](#prerequisites)
-- [Documentation](#documentation)
-- [Contributing](#contributing)
-- [License](#license)
-
 ## Prerequisites
 
 To deploy a Kubernetes cluster using these guides, ensure the following:
@@ -55,8 +48,9 @@ The following guides provide step-by-step instructions for deploying a Kubernete
 - **[Set Up Air-Gapped Repository](air-gapped.md)**: Deploy a local Nexus and Nginx repository to store container images, RPMs, and PyPi packages for air-gapped environments. **Required only for air-gapped setups.**
 - **[Configure High-Availability Load Balancer](loadbalancer.md)**: Set up HAProxy and Keepalived for a reliable Kubernetes API load balancer.
 - **[Install Kubernetes with Kubespray](kubespray-install.md)**: Deploy the Kubernetes cluster using Ansible and Kubespray.
+- **[Kubernetes Cluster Management](kubespray-maintenance.md)**: Maintain and upgrade the cluster, including adding or removing nodes and upgrading Kubernetes versions with Kubespray.
 - **[Installation Checklist](checklist.md)**: A comprehensive checklist to ensure all steps are completed.
 
 ---
 
-**Keywords**: Kubernetes, Kubespray, air-gapped, online deployment, DevOps, HAProxy, Keepalived, Nexus, Ansible, containerization
+**Keywords**: Kubernetes, Kubespray, air-gapped, online deployment, Kubernetes maintenance, Kubespray upgrade, DevOps, HAProxy, Keepalived, Nexus, Ansible, containerization, RHEL, Rocky Linux
