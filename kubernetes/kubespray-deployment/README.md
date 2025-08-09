@@ -4,7 +4,7 @@ This section of the [GmrezaH/devopsToolkit](../../README.md) repository provides
 
 ## Tested Versions
 
-The setup has been tested with the following versions, primarily on Red Hat-based distributions, though adaptable to other Linux distributions with minor changes:
+The setup has been tested with the following versions, primarily on Red Hat-based distributions, though adaptable to other Linux distributions with minor changes (See [Kubespray Kernel Requirements](https://kubespray.io/#/docs/operations/kernel-requirements)):
 
 | Component  | Version        |
 | ---------- | -------------- |
