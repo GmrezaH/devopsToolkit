@@ -200,12 +200,12 @@ Configure firewall rules to allow Kubernetes communication.
    firewall-cmd --zone=trusted --add-source=10.233.0.0/16 --permanent
    ```
 
-   > [!NOTE]
+   > **NOTE:**
    > Replace the example IPs (e.g., 192.168.200.10) with your actual Load Balancer and Kubernetes node IPs. Use your cluster's pod and service CIDRs for internal networks (see kubespray-install.md). If your cluster has many nodes and frequent additions/removals, add the Kubernetes network subnet to the trusted zone to reduce manual work, e.g.:
-
-   ```bash
-   firewall-cmd --zone=trusted --add-source=192.168.200.0/24 --permanent
-   ```
+   >
+   > ```bash
+   > firewall-cmd --zone=trusted --add-source=192.168.200.0/24 --permanent
+   > ```
 
 1. Reload firewalld to apply changes
 
