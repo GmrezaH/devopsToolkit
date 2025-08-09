@@ -235,6 +235,7 @@ Kubernetes requires sufficient storage for logs, container images, and other dat
 
 ## Next Steps
 
+- Proceed to [air-gapped.md](air-gapped.md) for air-gapped repository setup (if applicable).
 - Configure the high-availability load balancer in [loadbalancer.md](loadbalancer.md).
 - Deploy the cluster in [kubespray-install.md](kubespray-install.md).
 - Use [kubespray-maintenance.md](kubespray-maintenance.md) for ongoing cluster management.
