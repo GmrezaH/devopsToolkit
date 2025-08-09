@@ -95,9 +95,9 @@ Verify that DNS resolution is correctly configured on all nodes to ensure Kubern
    - For online environments, use your network’s DNS server (e.g., `8.8.8.8` for Google DNS).
    - For air-gapped environments, use the local DNS server.
 
-   ```bash
-   sudo bash -c 'echo "nameserver 192.168.1.1" > /etc/resolv.conf'
-   ```
+     ```bash
+     sudo bash -c 'echo "nameserver 192.168.1.1" > /etc/resolv.conf'
+     ```
 
 1. Test DNS resolution:
 
