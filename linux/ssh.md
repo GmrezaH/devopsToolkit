@@ -5,14 +5,14 @@
 Run the following command to create a new SSH keypair:
 
 ```bash
-ssh-keygen -t ed25519 -C "your_email@example.com" -f ~/.ssh/service_specific_key
+ssh-keygen -t ed25519 -C "your_email@example.com" -f ~/.ssh/service_specific_key -N ''
 ```
 
 > [!NOTE]
 > If you are using a legacy system that doesn't support the Ed25519 algorithm, use:
 >
 > ```bash
-> ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f ~/.ssh/service_specific_key
+> ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f ~/.ssh/service_specific_key -N ''
 > ```
 
 ## Add the public key to the destination server

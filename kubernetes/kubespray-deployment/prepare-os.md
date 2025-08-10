@@ -56,17 +56,16 @@ Ensure all nodes have the latest packages to avoid compatibility issues.
 
 1. Update the package cache and upgrade packages:
 
-   - **Online environments**:
+   ```bash
+   sudo dnf update -y
+   ```
 
-     ```bash
-     sudo dnf update -y
-     ```
+1. Install required packages (on kubernetes nodes):
 
-   - **Air-gapped environments**: Configure the local Nexus repository as described in [air-gapped.md](air-gapped.md), then run:
-
-     ```bash
-     sudo dnf --disablerepo="*" --enablerepo="nexus-local" update -y
-     ```
+   ```bash
+   sudo dnf clean all
+   sudo dnf install -y git vim tree htop python3.12 python3.12-pip python3.12-netaddr yum-utils container-selinux rsync unzip bash-completion ipvsadm socat
+   ```
 
 1. Reboot if kernel updates were applied:
 
