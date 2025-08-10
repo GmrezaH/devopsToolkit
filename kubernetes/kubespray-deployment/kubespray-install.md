@@ -179,7 +179,7 @@ Review and modify the group variables in `inventory/mycluster/group_vars` to sui
    ## External LB config
    apiserver_loadbalancer_domain_name: "vip.example.com"
    loadbalancer_apiserver:
-     address: 95.54.0.100
+     address: ${vip}
      port: 6443
 
    ## Internal loadbalancers for apiservers
