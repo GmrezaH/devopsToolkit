@@ -179,7 +179,7 @@ Review and modify the group variables in `inventory/mycluster/group_vars` to sui
    ## External LB config
    apiserver_loadbalancer_domain_name: "vip.example.com"
    loadbalancer_apiserver:
-     address: ${vip}
+     address: 95.54.0.100
      port: 6443
 
    ## Internal loadbalancers for apiservers
@@ -443,19 +443,19 @@ Review and modify the group variables in `inventory/mycluster/group_vars` to sui
    #   - ${MASTER2_HOSTNAME}
    #   - ${MASTER3_HOSTNAME}
    supplementary_addresses_in_ssl_keys:
-     - 172.16.1.60
-     - 172.16.1.61
-     - 172.16.1.62
-     - 172.16.1.63
+     - 95.54.0.100
+     - 95.54.0.12
+     - 95.54.0.13
+     - 95.54.0.14
      - vip.example.com
      - vip.example
      - vip
-     - km1.example.com
-     - km2.example.com
-     - km3.example.com
-     - km1
-     - km2
-     - km3
+     - master1.example.com
+     - master2.example.com
+     - master3.example.com
+     - master1
+     - master2
+     - master3
 
    ## Support tls min version, Possible values: VersionTLS10, VersionTLS11, VersionTLS12, VersionTLS13.
    tls_min_version: "VersionTLS12"

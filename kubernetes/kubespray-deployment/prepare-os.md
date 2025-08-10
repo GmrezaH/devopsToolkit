@@ -85,7 +85,7 @@ Verify that DNS resolution is correctly configured on all nodes to ensure Kubern
    Example output:
 
    ```
-   DNS Servers: 192.168.1.1
+   DNS Servers: 8.8.8.8
    ```
 
 1. If DNS servers are incorrect or missing, update `/etc/resolv.conf`:
