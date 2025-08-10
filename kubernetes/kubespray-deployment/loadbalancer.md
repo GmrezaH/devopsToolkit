@@ -9,7 +9,7 @@ Before configuring the load balancer, ensure the following:
 - Two VMs dedicated for HAProxy and Keepalived, prepared as described in [prepare-os.md](prepare-os.md).
 - A free virtual IP (VIP) in the same subnet as the Kubernetes nodes (e.g., `${vip}`).
 - For air-gapped environments, access to the local Nexus repository for packages (see [air-gapped.md](air-gapped.md)).
-- Define variables for master node IPs (`${master1_ip}`, `${master2_ip}`, `${master3_ip}`), worker node IPs (e.g., `${worker1_ip}`), VIP (`${vip}`), and network interface (e.g., `ens192`) based on your cluster setup.
+- Define variables for master node IPs (`${master1}`, `${master2}`, `${master3}`), worker node IPs (e.g., `${worker1}`), VIP (`${vip}`), and network interface (e.g., `ens192`) based on your cluster setup.
 
 ## Table of Contents
 
@@ -123,9 +123,9 @@ On both load balancer VMs, configure HAProxy to handle Kubernetes API and ingres
      option tcp-check
      balance roundrobin
      default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 250 maxqueue 256 weight 100
-     server master1 ${master1_ip}:6443 check
-     server master2 ${master2_ip}:6443 check
-     server master3 ${master3_ip}:6443 check
+     server master1 ${master1}:6443 check
+     server master2 ${master2}:6443 check
+     server master3 ${master3}:6443 check
 
    frontend fe-ingress-http
      bind 0.0.0.0:80
@@ -138,10 +138,9 @@ On both load balancer VMs, configure HAProxy to handle Kubernetes API and ingres
      option tcp-check
      balance roundrobin
      default-server inter 10s downinter 5s rise 2 fall 2 maxconn 250 maxqueue 256 weight 100
-     server master1 ${master1_ip}:30080 check
-     server master2 ${master2_ip}:30080 check
-     server master3 ${master3_ip}:30080 check
-     server worker1 ${worker1_ip}:30080 check
+     server worker1 ${worker1}:30081 check
+     server worker2 ${worker2}:30081 check
+     server worker3 ${worker3}:30081 check
 
    frontend fe-ingress-https
      bind 0.0.0.0:443
@@ -154,10 +153,9 @@ On both load balancer VMs, configure HAProxy to handle Kubernetes API and ingres
      option tcp-check
      balance roundrobin
      default-server inter 10s downinter 5s rise 2 fall 2 maxconn 250 maxqueue 256 weight 100
-     server master1 ${master1_ip}:30081 check
-     server master2 ${master2_ip}:30081 check
-     server master3 ${master3_ip}:30081 check
-     server worker1 ${worker1_ip}:30081 check
+     server worker1 ${worker1}:30081 check
+     server worker2 ${worker2}:30081 check
+     server worker3 ${worker3}:30081 check
    EOF
    ```
 

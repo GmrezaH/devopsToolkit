@@ -63,7 +63,6 @@ Ensure all nodes have the latest packages to avoid compatibility issues.
 1. Install required packages (on kubernetes nodes):
 
    ```bash
-   sudo dnf clean all
    sudo dnf install -y git vim tree htop python3.12 python3.12-pip python3.12-netaddr yum-utils container-selinux rsync unzip bash-completion ipvsadm socat
    ```
 

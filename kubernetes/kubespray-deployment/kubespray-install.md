@@ -144,28 +144,27 @@ Create and configure the inventory for your cluster.
 
    ```bash
    cat <<EOF > inventory/mycluster/inventory.ini
-   node1 ansible_host=95.54.0.12 ip=10.3.0.1 etcd_member_name=etcd1
-   node2 ansible_host=95.54.0.13 ip=10.3.0.2 etcd_member_name=etcd2
-   node3 ansible_host=95.54.0.14 ip=10.3.0.3 etcd_member_name=etcd3
-   node4 ansible_host=95.54.0.15 ip=10.3.0.4
-   node5 ansible_host=95.54.0.16 ip=10.3.0.5
-   node6 ansible_host=95.54.0.17 ip=10.3.0.6
+   master1 ansible_host=95.54.0.12 ip=10.3.0.1 etcd_member_name=etcd1
+   master2 ansible_host=95.54.0.13 ip=10.3.0.2 etcd_member_name=etcd2
+   master3 ansible_host=95.54.0.14 ip=10.3.0.3 etcd_member_name=etcd3
+   worker1 ansible_host=95.54.0.15 ip=10.3.0.4
+   worker2 ansible_host=95.54.0.16 ip=10.3.0.5
+   worker3 ansible_host=95.54.0.17 ip=10.3.0.6
 
    [kube_control_plane]
-   node1
-   node2
+   master1
+   master2
+   master3
 
    [etcd]
-   node1
-   node2
-   node3
+   master1
+   master2
+   master3
 
    [kube_node]
-   node2
-   node3
-   node4
-   node5
-   node6
+   worker1
+   worker2
+   worker3
    EOF
    ```
 
