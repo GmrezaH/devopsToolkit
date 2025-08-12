@@ -84,14 +84,6 @@ Configure `firewalld` on both load balancer VMs to allow HAProxy and Keepalived 
 
      Ensure the network interface (e.g., `ens192`) is in the `public` zone for ports 80, 443, 8000, and 6443.
 
-   - Enabled services in the public zone (ensure ssh is listed):
-
-     ```bash
-     firewall-cmd --zone=public --list-services
-     ```
-
-     Expected output includes `ssh`
-
 ## Configure HAProxy
 
 On both load balancer VMs, configure HAProxy to handle Kubernetes API and ingress traffic, forwarding port 80 to 30080 and port 443 to 30081 on Kubernetes nodes.

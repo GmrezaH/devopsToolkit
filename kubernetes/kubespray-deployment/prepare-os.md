@@ -235,6 +235,14 @@ Configure firewall rules to allow Kubernetes communication.
      firewall-cmd --zone=trusted --list-sources
      ```
 
+   - Enabled services in the public zone (ensure ssh is listed):
+
+     ```bash
+     firewall-cmd --zone=public --list-services
+     ```
+
+     Expected output includes `ssh`
+
 ## Set Up Storage
 
 Kubernetes requires sufficient storage for logs, container images, and other data. To create a separate partition for `/var` or extend the existing one, follow the instructions in [Linux storage docs](../../linux/storage/README.md).
