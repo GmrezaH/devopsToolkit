@@ -92,6 +92,10 @@ On both load balancer VMs, configure HAProxy to handle Kubernetes API and ingres
 
    ```bash
    cat <<EOF >> /etc/haproxy/haproxy.cfg
+
+   #---------------------------------------------------------------------
+   # Kubernetes configuration
+   #---------------------------------------------------------------------
    listen Stats-Page
      bind *:8000
      mode http
