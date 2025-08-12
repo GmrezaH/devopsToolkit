@@ -134,9 +134,9 @@ On both load balancer VMs, configure HAProxy to handle Kubernetes API and ingres
      option tcp-check
      balance roundrobin
      default-server inter 10s downinter 5s rise 2 fall 2 maxconn 250 maxqueue 256 weight 100
-     server worker1 ${worker1}:30081 check
-     server worker2 ${worker2}:30081 check
-     server worker3 ${worker3}:30081 check
+     server worker1 ${worker1}:30080 check
+     server worker2 ${worker2}:30080 check
+     server worker3 ${worker3}:30080 check
 
    frontend fe-ingress-https
      bind 0.0.0.0:443
