@@ -149,3 +149,34 @@ To create the `docker` group and add your user:
 
 > [!NOTE]
 > If you're running Linux in a virtual machine, it may be necessary to restart the virtual machine for changes to take effect.
+
+## Configuring Docker Daemon
+
+To customize the Docker daemon behavior, such as setting proxies, log options, registry mirrors, and insecure registries, create or edit the /etc/docker/daemon.json file. Here's an example configuration:
+
+```bash
+cat <<EOF > /etc/docker/daemon.json
+{
+  "registry-mirrors": ["https://docker.example.ir"],
+  "insecure-registries": ["192.168.1.10:8082"],
+  "proxies": {
+    "http-proxy": "http://USER:PASS@PROXY_ADDRESS:PORT",
+    "https-proxy": "http://USER:PASS@PROXY_ADDRESS:PORT",
+    "no-proxy": "localhost,127.0.0.1"
+  },
+  "log-opts": {
+    "max-file": "5",
+    "max-size": "100m",
+    "labels": "${HOSTNAME}"
+  },
+  "experimental": true,
+  "live-restore": true
+}
+EOF
+```
+
+After editing the file, restart the Docker service to apply the changes:
+
+```bash
+sudo systemctl restart docker
+```
