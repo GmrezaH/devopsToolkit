@@ -125,6 +125,14 @@ Ensure time synchronization is enabled to prevent clock drift, which can cause i
    RTC in local TZ: no
    ```
 
+1. Verify Chrony has at least one active time source.
+
+   ```bash
+   chronyc sources
+   ```
+
+   Check that the output shows at least one source with a `^*` (synchronised) or `^+` (candidate) in the MS column. This confirms the system is receiving time updates from a valid source.
+
 1. If NTP is not active, enable and configure it:
 
    - Install `chrony` if not present:

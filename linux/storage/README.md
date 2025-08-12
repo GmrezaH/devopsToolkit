@@ -50,7 +50,7 @@ If `/var` is **not** on a separate partition, follow these steps to create one.
 
       - Type `t` and press `Enter`.
       - Enter the partition number (e.g., `1`) and press `Enter`.
-      - Type `31` and press `Enter` to set the type to "Linux LVM".
+      - Set the type to "Linux LVM" (`30` for RHEL9 and `31` for RHEL8).
 
    4. **Write Changes and Exit:**
       - Type `w` and press `Enter` to write the changes to the disk and exit `fdisk`.
@@ -198,7 +198,13 @@ If `/var` is **already** on a separate partition and you need to extend its size
 
 1. Resize the Filesystem
 
-   After extending the LV, resize the filesystem to utilize the new space.
+   After extending the LV, check current FSTYPE of `/var`.
+
+   ```bash
+   lsblk -f
+   ```
+
+   Resize the filesystem to utilize the new space.
 
    - **For XFS Filesystem:**
 
