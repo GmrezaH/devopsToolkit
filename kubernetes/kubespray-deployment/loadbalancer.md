@@ -64,12 +64,6 @@ Configure `firewalld` on both load balancer VMs to allow HAProxy and Keepalived 
 
 1. Verify the configuration:
 
-   - Trusted sources in the `trusted` zone:
-
-     ```bash
-     firewall-cmd --zone=trusted --list-sources
-     ```
-
    - Open ports in the `public` zone:
 
      ```bash
