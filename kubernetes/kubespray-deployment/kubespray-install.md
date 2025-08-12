@@ -696,7 +696,7 @@ Run the Ansible playbooks to deploy the cluster.
 
 1. Fix module link if needed.
 
-   If the the "/library/kube.py" is not a soft link, or if you faced the this issue: "module (kube) is missing interpreter line", fix it with below instruction:
+   If the the `library/kube.py` is not a soft link, or if you faced the this issue: `module (kube) is missing interpreter line`, fix it with below instruction:
 
    ```bash
    cd library
