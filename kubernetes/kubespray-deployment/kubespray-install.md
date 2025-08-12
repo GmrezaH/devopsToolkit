@@ -501,7 +501,7 @@ Review and modify the group variables in `inventory/mycluster/group_vars` to sui
 
    ```yaml
    # Kube Proxy Replacement mode (strict/partial)
-   cilium_kube_proxy_replacement: strict
+   cilium_kube_proxy_replacement: true
 
    # Unique ID of the cluster. Must be unique across all connected clusters and
    # in the range of 1 and 255. Only relevant when building a mesh of clusters.
@@ -536,7 +536,7 @@ Review and modify the group variables in `inventory/mycluster/group_vars` to sui
    cilium_rolling_restart_wait_retries_delay_seconds: 10
    ```
 
-1. Update `roles/kubespray-defaults/defaults/main/download.yml`:
+1. Update `roles/kubespray_defaults/defaults/main/download.yml`:
 
    ```yaml
    ---
@@ -547,7 +547,7 @@ Review and modify the group variables in `inventory/mycluster/group_vars` to sui
    image_command_tool_on_localhost: docker
    ```
 
-1. Update `roles/kubespray-defaults/defaults/main/main.yml`:
+1. Update `roles/kubespray_defaults/defaults/main/main.yml`:
 
    ```yaml
    ---
