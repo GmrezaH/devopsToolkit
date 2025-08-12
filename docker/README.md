@@ -1,4 +1,4 @@
-# Install Docker Engine
+# Install Docker
 
 This guide provides step-by-step instructions for installing Docker Engine on Red Hat Enterprise Linux (RHEL) systems, focusing on containerization best practices for DevOps environments. It covers prerequisites, installation methods, and configurations to ensure efficient software delivery and infrastructure setup.
 
