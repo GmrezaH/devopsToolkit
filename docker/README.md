@@ -152,7 +152,7 @@ To create the `docker` group and add your user:
 
 ## Configuring Docker Daemon
 
-To customize the Docker daemon behavior, such as setting proxies, log options, registry mirrors, and insecure registries, create or edit the /etc/docker/daemon.json file. Here's an example configuration:
+To customize the Docker daemon behavior, such as setting proxies, log options, registry mirrors, and insecure registries, create or edit the `/etc/docker/daemon.json` file. Here's an example configuration:
 
 ```bash
 cat <<EOF > /etc/docker/daemon.json
