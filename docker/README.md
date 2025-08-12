@@ -77,13 +77,13 @@ sudo dnf config-manager --add-repo https://download.docker.com/linux/rhel/docker
 
 ### Install from a package
 
-If you can't use Docker's rpm repository to install Docker Engine, you can download the .rpm file for your release and install it manually. You need to download a new file each time you want to upgrade Docker Engine.
+If you can't use Docker's `rpm` repository to install Docker Engine, you can download the `.rpm` file for your release and install it manually. You need to download a new file each time you want to upgrade Docker Engine.
 
 1. Go to https://download.docker.com/linux/rhel/
 
 1. Select your RHEL version in the list.
 
-1. Select the applicable architecture (x86_64, aarch64, or s390x), and then go to stable/Packages/.
+1. Select the applicable architecture (x86_64, aarch64, or s390x), and then go to `stable/Packages/`.
 
 1. Download the following `rpm` files for the Docker Engine, CLI, containerd, and Docker Compose packages:
 
