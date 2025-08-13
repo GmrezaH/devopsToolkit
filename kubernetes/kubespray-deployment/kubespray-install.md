@@ -144,12 +144,12 @@ Create and configure the inventory for your cluster.
 
    ```bash
    cat <<EOF > inventory/mycluster/inventory.ini
-   master1 ansible_host=95.54.0.12 ip=10.3.0.1 etcd_member_name=etcd1
-   master2 ansible_host=95.54.0.13 ip=10.3.0.2 etcd_member_name=etcd2
-   master3 ansible_host=95.54.0.14 ip=10.3.0.3 etcd_member_name=etcd3
-   worker1 ansible_host=95.54.0.15 ip=10.3.0.4
-   worker2 ansible_host=95.54.0.16 ip=10.3.0.5
-   worker3 ansible_host=95.54.0.17 ip=10.3.0.6
+   master1 ansible_host=95.54.0.12 ansible_port=1313 ip=10.3.0.1 etcd_member_name=etcd1
+   master2 ansible_host=95.54.0.13 ansible_port=1313 ip=10.3.0.2 etcd_member_name=etcd2
+   master3 ansible_host=95.54.0.14 ansible_port=1313 ip=10.3.0.3 etcd_member_name=etcd3
+   worker1 ansible_host=95.54.0.15 ansible_port=1313 ip=10.3.0.4
+   worker2 ansible_host=95.54.0.16 ansible_port=1313 ip=10.3.0.5
+   worker3 ansible_host=95.54.0.17 ansible_port=1313 ip=10.3.0.6
 
    [kube_control_plane]
    master1
@@ -321,9 +321,6 @@ Review and modify the group variables in `inventory/mycluster/group_vars` to sui
 
    ```yaml
    ---
-   ## Change this to use another Kubernetes version, e.g. a current beta release
-   kube_version: v1.31.9
-
    # This is the user that owns tha cluster installation.
    kube_owner: root
 
@@ -332,12 +329,12 @@ Review and modify the group variables in `inventory/mycluster/group_vars` to sui
    kube_network_plugin: cilium
 
    # Kubernetes internal network for services, unused block of space.
-   kube_service_addresses: 12.232.0.0/18
+   kube_service_addresses: 10.232.0.0/18
 
    # internal network. When used, it will assign IP
    # addresses from this range to individual pods.
    # This network must be unused in your network infrastructure!
-   kube_pods_subnet: 12.233.0.0/16
+   kube_pods_subnet: 10.233.0.0/16
 
    # internal network node size allocation (optional). This is the size allocated
    # to each node for pod IP address allocation. Note that the number of pods per node is
@@ -450,9 +447,6 @@ Review and modify the group variables in `inventory/mycluster/group_vars` to sui
      - vip.example.com
      - vip.example
      - vip
-     - master1.example.com
-     - master2.example.com
-     - master3.example.com
      - master1
      - master2
      - master3
