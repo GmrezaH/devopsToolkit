@@ -315,7 +315,19 @@ Review and modify the group variables in `inventory/mycluster/group_vars` to sui
    metrics_server_kubelet_preferred_address_types: "InternalIP,ExternalIP,Hostname"
    metrics_server_host_network: false
    metrics_server_replicas: 1
+   metrics_server_extra_affinity:
+     nodeAffinity:
+       requiredDuringSchedulingIgnoredDuringExecution:
+         nodeSelectorTerms:
+           - matchExpressions:
+               - key: node-role.kubernetes.io/control-plane
+                 operator: Exists
    ```
+
+   > **NOTE:**
+   > The `metrics_server_extra_affinity` setting ensures Metrics Server pods run only on control plane nodes, as `kubelet_secure_addresses` in hardening.yml includes **only** control plane IPs.
+   >
+   > If Metrics Server is scheduled on a worker node, it can only scrape metrics from that specific worker and its pods, and fail to scrape other nodes and pods.
 
 1. Update `group_vars/k8s_cluster/k8s-cluster.yml` with CNI options (choose Calico or Cilium):
 
