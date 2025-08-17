@@ -1,0 +1,136 @@
+crds:
+  enabled: true
+  keep: true
+
+replicaCount: 2
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+image:
+  registry: quay.io
+  repository: jetstack/cert-manager-controller
+enableCertificateOwnerRef: false
+resources:
+  requests:
+    cpu: 10m
+    memory: 32Mi
+  limits:
+    cpu: 40m
+    memory: 128Mi
+securityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: true
+ingressShim:
+  defaultIssuerName: "cluster-ca-issuer"
+  defaultIssuerKind: "ClusterIssuer"
+  defaultIssuerGroup: "cert-manager.io"
+
+prometheus:
+  enabled: true
+  servicemonitor:
+    enabled: true
+    # namespace: cert-manager
+    prometheusInstance: default
+    targetPort: http-metrics
+    path: /metrics
+    interval: 60s
+    scrapeTimeout: 30s
+    labels:
+      release: prometheus-stack
+  podmonitor:
+    enabled: false
+    # namespace: cert-manager
+    prometheusInstance: default
+    path: /metrics
+    interval: 60s
+    scrapeTimeout: 30s
+    labels:
+      release: prometheus-stack
+
+webhook:
+  replicaCount: 2
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+      - ALL
+    readOnlyRootFilesystem: true
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      cpu: 40m
+      memory: 128Mi
+  image:
+    registry: quay.io
+    repository: jetstack/cert-manager-webhook
+
+cainjector:
+  enabled: true
+  replicaCount: 2
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+      - ALL
+    readOnlyRootFilesystem: true
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      cpu: 40m
+      memory: 128Mi
+  image:
+    registry: quay.io
+    repository: jetstack/cert-manager-cainjector
+
+acmesolver:
+  image:
+    registry: quay.io
+    repository: jetstack/cert-manager-acmesolver
+
+startupapicheck:
+  enabled: true
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+      - ALL
+    readOnlyRootFilesystem: true
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      cpu: 40m
+      memory: 128Mi
+  image:
+    registry: quay.io
+    repository: jetstack/cert-manager-startupapicheck
