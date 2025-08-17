@@ -19,7 +19,7 @@ helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo update
 ```
 
-## Install chart
+## Installing the Helm Chart
 
 Install the ingress-nginx chart using Helm 3 with the provided [values.yaml](./values.yaml) file:
 
