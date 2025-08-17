@@ -2,13 +2,12 @@
 
 The [ingress-nginx](https://github.com/kubernetes/ingress-nginx) Helm chart deploys an NGINX-based Ingress controller for Kubernetes, acting as a reverse proxy and load balancer to manage external traffic to services. This guide outlines the steps to install and configure ingress-nginx in a Kubernetes cluster, with considerations for air-gapped environments.
 
-## Requirements
+## Prerequisites
 
 - Kubernetes: `>=1.21.0-0`
 - Helm: `>=3`
 - ingress-nginx (CHART VERSION): `4.13.1`
-- Access to the ingress-nginx Helm repository or a local mirror (for air-gapped environments)
-- For air-gapped setups, ensure the `ingress-nginx` Helm chart and images are mirrored to the local Nexus repository.
+- Access to the `ingress-nginx` Helm and image repository or a local mirror (for air-gapped environments).
 
 ## Adding the Helm Repository
 

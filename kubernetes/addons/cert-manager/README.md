@@ -6,13 +6,12 @@ cert-manager can obtain certificates from a variety of certificate authorities, 
 
 With cert-manager's [Certificate resource](https://cert-manager.io/docs/usage/certificate/), the private key and certificate are stored in a Kubernetes Secret which is mounted by an application Pod or used by an Ingress controller. With csi-driver, csi-driver-spiffe, or istio-csr , the private key is generated on-demand, before the application starts up; the private key never leaves the node and it is not stored in a Kubernetes Secret.
 
-## Requirements
+## Prerequisites
 
 - Kubernetes: `>=1.29`
 - Helm: `>=3`
 - cert-manager (CHART VERSION): `v1.18.2`
-- Access to the Jetstack Helm repository or a local mirror (for air-gapped environments).
-- For air-gapped setups, ensure the `cert-manager` Helm chart and images are mirrored to the local Nexus repository.
+- Access to the `Jetstack` Helm and image repository or a local mirror (for air-gapped environments).
 
 ## Adding the Helm Repository
 
