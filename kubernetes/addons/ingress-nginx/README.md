@@ -88,7 +88,7 @@ After installation, configure the Ingress-Nginx controller to handle external tr
    ```yaml
    metadata:
      annotations:
-       cert-manager.io/cluster-issuer: cluster-ca-issuer
+       cert-manager.io/cluster-issuer: my-ca-issuer
    spec:
      tls:
        - hosts:
