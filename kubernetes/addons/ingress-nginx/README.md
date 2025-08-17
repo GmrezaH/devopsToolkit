@@ -1,4 +1,4 @@
-# ingress-nginx
+# ingress-nginx Installation and Configuration
 
 The [ingress-nginx](https://github.com/kubernetes/ingress-nginx) Helm chart deploys an NGINX-based Ingress controller for Kubernetes, acting as a reverse proxy and load balancer to manage external traffic to services. This guide outlines the steps to install and configure ingress-nginx in a Kubernetes cluster, with considerations for air-gapped environments.
 
