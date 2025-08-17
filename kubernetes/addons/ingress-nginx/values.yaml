@@ -1,0 +1,111 @@
+global:
+  image:
+    registry: registry.k8s.io
+
+controller:
+  name: controller
+  image:
+    chroot: false
+    image: ingress-nginx/controller
+    #tag: "v1.13.1"
+    #digest: sha256:37e489b22ac77576576e52e474941cd7754238438847c1ee795ad6d59c02b12a
+    #digestChroot: sha256:cace9bc8ad1914e817e5b461d691a00caab652347002ba811077189b85009d7f
+    pullPolicy: IfNotPresent
+    runAsNonRoot: true
+    runAsUser: 101
+    runAsGroup: 82
+    allowPrivilegeEscalation: false
+    seccompProfile:
+      type: RuntimeDefault
+    readOnlyRootFilesystem: false
+  watchIngressWithoutClass: true
+  allowSnippetAnnotations: true
+  ingressClassResource:
+    name: nginx
+    enabled: true
+    default: true
+  # -- Use a `DaemonSet` or `Deployment`
+  kind: Deployment
+  replicaCount: 1
+  minAvailable: 1
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 90Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 11
+    targetCPUUtilizationPercentage: 50
+    targetMemoryUtilizationPercentage: 50
+  service:
+    enabled: true
+    type: NodePort
+    externalTrafficPolicy: "Local"
+    nodePorts:
+      http: "30080"
+      https: "30081"
+
+  metrics:
+    port: 10254
+    portName: metrics
+    enabled: true
+    service:
+      enabled: true
+      annotations: {}
+      # prometheus.io/scrape: "true"
+      # prometheus.io/port: "10254"
+      servicePort: 10254
+      #type: NodePort
+      #nodePort: "30054"
+    serviceMonitor:
+      enabled: true
+      additionalLabels:
+        release: prometheus-stack
+      namespace: ""
+    prometheusRule:
+      enabled: true
+      additionalLabels:
+        release: prometheus-stack
+      namespace: ""
+      rules:
+        - alert: NGINXConfigFailed
+          expr: count(nginx_ingress_controller_config_last_reload_successful == 0) > 0
+          for: 1s
+          labels:
+            severity: critical
+          annotations:
+            description: bad ingress config - nginx config test failed
+            summary: uninstall the latest ingress changes to allow config reloads to resume
+        # By default a fake self-signed certificate is generated as default and
+        # it is fine if it expires. If `--default-ssl-certificate` flag is used
+        # and a valid certificate passed please do not filter for `host` label!
+        # (i.e. delete `{host!="_"}` so also the default SSL certificate is
+        # checked for expiration)
+        - alert: NGINXCertificateExpiry
+          expr: (avg(nginx_ingress_controller_ssl_expire_time_seconds{host!="_"}) by (host) - time()) < 604800
+          for: 1s
+          labels:
+            severity: critical
+          annotations:
+            description: ssl certificate(s) will expire in less then a week
+            summary: renew expiring certificates to avoid downtime
+        - alert: NGINXTooMany500s
+          expr: 100 * ( sum( nginx_ingress_controller_requests{status=~"5.+"} ) / sum(nginx_ingress_controller_requests) ) > 5
+          for: 1m
+          labels:
+            severity: warning
+          annotations:
+            description: Too many 5XXs
+            summary: More than 5% of all requests returned 5XX, this requires your attention
+        - alert: NGINXTooMany400s
+          expr: 100 * ( sum( nginx_ingress_controller_requests{status=~"4.+"} ) / sum(nginx_ingress_controller_requests) ) > 5
+          for: 1m
+          labels:
+            severity: warning
+          annotations:
+            description: Too many 4XXs
+            summary: More than 5% of all requests returned 4XX, this requires your attention
