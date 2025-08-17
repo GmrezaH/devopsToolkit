@@ -170,4 +170,4 @@ To enable monitoring after `kube-prometheus-stack` installation (e.g., Prometheu
 
 - [Official cert-manager installation docs](https://cert-manager.io/docs/installation/helm/)
 
-- [Cert-manager configuring SelfSigned issuer docs](https://cert-manager.io/docs/configuration/selfsigned/)
+- [Cert-manager Self-Signed Issuer Configuration](https://cert-manager.io/docs/configuration/selfsigned/)
