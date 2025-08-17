@@ -83,7 +83,7 @@ After installation, configure the Ingress-Nginx controller to handle external tr
    ```
 
 3. **Integrate with Cert-Manager for TLS**:
-   To secure Ingress resources with TLS certificates, configure Cert-Manager integration. Add an annotation to the Ingress resource to reference a Cert-Manager issuer (e.g., `cluster-ca-issuer`):
+   To secure Ingress resources with TLS certificates, configure Cert-Manager integration. Add an annotation to the Ingress resource to reference a Cert-Manager issuer (e.g., `my-ca-issuer`):
 
    ```yaml
    metadata:
@@ -96,7 +96,7 @@ After installation, configure the Ingress-Nginx controller to handle external tr
          secretName: example-tls
    ```
 
-   Ensure the `cluster-ca-issuer` is configured (see `cert-manager/README.md`).
+   Ensure the `my-ca-issuer` is configured (see `cert-manager/README.md`).
 
 4. **Test Connectivity**:
    Verify that the Ingress is routing traffic correctly. If using a local DNS (e.g., `nexus.test.local`), add the Ingress host to `/etc/hosts` or your DNS server:
