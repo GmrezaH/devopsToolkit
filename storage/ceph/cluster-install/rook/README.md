@@ -93,10 +93,15 @@ Creates Rook resources to configure a [Ceph](https://ceph.io/en/) cluster using 
 - Ingress for external access to the dashboard
 - Toolbox
 
+> [!IMPORTANT] > `dataDirHostPath` (default: /var/lib/rook) is the path on the host where configuration files will be persisted. Must be specified. If there are multiple clusters, the directory must be unique for each cluster. If you are reinstalling the cluster, make sure you delete this directory from each host or else the mons will fail to start on the new cluster.
+
 1. Review and customize the [rook-ceph-cluster-values.yaml](./rook-ceph-cluster-values.yaml) file, ensuring:
+
    - If the operator was installed in a namespace other than `rook-ceph`, the namespace must be set in the `operatorNamespace` variable.
+   - Any disk devices you add to the cluster in the 'CephCluster' must be empty (no filesystem and no partitions).
    - Storage configurations align with your disk setup.
    - Air-gapped repository settings point to your Nexus instance.
+
 1. Install the chart:
 
    ```bash

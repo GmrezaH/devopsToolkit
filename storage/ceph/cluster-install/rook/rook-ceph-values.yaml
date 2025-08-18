@@ -17,6 +17,10 @@ resources:
 nodeSelector:
   disktype: ssd
 
+tolerations:
+  - key: "node-role.kubernetes.io/control-plane"
+    operator: "Exists"
+
 currentNamespaceOnly: true
 
 # Options: `ERROR`, `WARNING`, `INFO`, `DEBUG`
@@ -253,6 +257,9 @@ csi:
 
 enableDiscoveryDaemon: true
 discoveryDaemonInterval: 60m
+discover:
+  resources: |
+    '{"resources":{"requests":{"memory":"128Mi","cpu":"100m"},"limits":{"memory":"512Mi"}}}'
 
 monitoring:
   enabled: true
