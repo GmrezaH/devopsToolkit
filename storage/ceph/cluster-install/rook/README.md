@@ -55,9 +55,9 @@ The release channel is the most recent release of Rook that is considered stable
 Label Kubernetes nodes with attached disks for Ceph storage to enable node selection by the Rook operator:
 
 ```bash
-kubectl label nodes master1 disk=ssd
-kubectl label nodes master2 disk=ssd
-kubectl label nodes master3 disk=ssd
+kubectl label nodes master1 disktype=ssd
+kubectl label nodes master2 disktype=ssd
+kubectl label nodes master3 disktype=ssd
 ```
 
 Verify node labels:

@@ -1,0 +1,258 @@
+image:
+  repository: docker.io/rook/ceph
+  tag: v1.17.7
+  pullPolicy: IfNotPresent
+
+crds:
+  enabled: true
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+nodeSelector:
+  disktype: ssd
+
+currentNamespaceOnly: true
+
+# Options: `ERROR`, `WARNING`, `INFO`, `DEBUG`
+logLevel: INFO
+
+rbacEnable: true
+rbacAggregate:
+  enableOBCs: true
+
+pspEnable: true
+
+containerSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 2016
+  runAsGroup: 2016
+  capabilities:
+    drop: ["ALL"]
+
+csi:
+  enableRbdDriver: true
+  enableCephfsDriver: true
+  disableCsiDriver: "false"
+  enableCSIHostNetwork: true
+  enableCephfsSnapshotter: true
+  enableNFSSnapshotter: true
+  enableRBDSnapshotter: true
+  enablePluginSelinuxHostMount: false
+  enableCSIEncryption: false
+  enableVolumeGroupSnapshot: true
+  pluginPriorityClassName: system-node-critical
+  provisionerPriorityClassName: system-cluster-critical
+  rbdFSGroupPolicy: "ReadWriteOnceWithFSType"
+  cephFSFSGroupPolicy: "File"
+  nfsFSGroupPolicy: "File"
+  enableOMAPGenerator: false
+  cephFSKernelMountOptions:
+  enableMetadata: false
+  provisionerReplicas: 3
+
+  csiRBDProvisionerResource: |
+    - name : csi-provisioner
+      resource:
+        requests:
+          memory: 128Mi
+          cpu: 100m
+        limits:
+          memory: 256Mi
+          cpu: 200m
+    - name : csi-resizer
+      resource:
+        requests:
+          memory: 128Mi
+          cpu: 100m
+        limits:
+          memory: 256Mi
+          cpu: 200m
+    - name : csi-attacher
+      resource:
+        requests:
+          memory: 128Mi
+          cpu: 100m
+        limits:
+          memory: 256Mi
+          cpu: 200m
+    - name : csi-snapshotter
+      resource:
+        requests:
+          memory: 128Mi
+          cpu: 100m
+        limits:
+          memory: 256Mi
+          cpu: 200m
+    - name : csi-rbdplugin
+      resource:
+        requests:
+          memory: 512Mi
+          cpu: 250m
+        limits:
+          memory: 1Gi
+          cpu: 500m
+    - name : csi-omap-generator
+      resource:
+        requests:
+          memory: 512Mi
+          cpu: 250m
+        limits:
+          memory: 1Gi
+          cpu: 500m
+    - name : liveness-prometheus
+      resource:
+        requests:
+          memory: 128Mi
+          cpu: 50m
+        limits:
+          memory: 256Mi
+          cpu: 100m
+
+  csiRBDPluginResource: |
+    - name : driver-registrar
+      resource:
+        requests:
+          memory: 128Mi
+          cpu: 50m
+        limits:
+          memory: 256Mi
+          cpu: 100m
+    - name : csi-rbdplugin
+      resource:
+        requests:
+          memory: 512Mi
+          cpu: 250m
+        limits:
+          memory: 1Gi
+          cpu: 100m
+    - name : liveness-prometheus
+      resource:
+        requests:
+          memory: 128Mi
+          cpu: 50m
+        limits:
+          memory: 256Mi
+          cpu: 100m
+
+  csiCephFSProvisionerResource: |
+    - name : csi-provisioner
+      resource:
+        requests:
+          memory: 128Mi
+          cpu: 100m
+        limits:
+          memory: 256Mi
+          cpu: 200m
+    - name : csi-resizer
+      resource:
+        requests:
+          memory: 128Mi
+          cpu: 100m
+        limits:
+          memory: 256Mi
+          cpu: 200m
+    - name : csi-attacher
+      resource:
+        requests:
+          memory: 128Mi
+          cpu: 100m
+        limits:
+          memory: 256Mi
+          cpu: 200m
+    - name : csi-snapshotter
+      resource:
+        requests:
+          memory: 128Mi
+          cpu: 100m
+        limits:
+          memory: 256Mi
+          cpu: 200m
+    - name : csi-cephfsplugin
+      resource:
+        requests:
+          memory: 512Mi
+          cpu: 250m
+        limits:
+          memory: 1Gi
+          cpu: 500m
+    - name : liveness-prometheus
+      resource:
+        requests:
+          memory: 128Mi
+          cpu: 50m
+        limits:
+          memory: 256Mi
+          cpu: 100m
+
+  csiCephFSPluginResource: |
+    - name : driver-registrar
+      resource:
+        requests:
+          memory: 128Mi
+          cpu: 50m
+        limits:
+          memory: 256Mi
+          cpu: 100m
+    - name : csi-cephfsplugin
+      resource:
+        requests:
+          memory: 512Mi
+          cpu: 250m
+        limits:
+          memory: 1Gi
+          cpu: 500m
+    - name : liveness-prometheus
+      resource:
+        requests:
+          memory: 128Mi
+          cpu: 50m
+        limits:
+          memory: 256Mi
+          cpu: 100m
+
+  enableLiveness: true
+
+  serviceMonitor:
+    enabled: true
+    interval: 10s
+    labels:
+      release: prometheus-stack
+    namespace:
+
+  cephcsi:
+    repository: quay.io/cephcsi/cephcsi
+    tag: v3.14.2
+
+  registrar:
+    repository: registry.k8s.io/sig-storage/csi-node-driver-registrar
+    tag: v2.13.0
+
+  provisioner:
+    repository: registry.k8s.io/sig-storage/csi-provisioner
+    tag: v5.2.0
+
+  snapshotter:
+    repository: registry.k8s.io/sig-storage/csi-snapshotter
+    tag: v8.2.1
+
+  attacher:
+    repository: registry.k8s.io/sig-storage/csi-attacher
+    tag: v4.8.1
+
+  resizer:
+    repository: registry.k8s.io/sig-storage/csi-resizer
+    tag: v1.13.2
+
+  imagePullPolicy: IfNotPresent
+
+enableDiscoveryDaemon: true
+discoveryDaemonInterval: 60m
+
+monitoring:
+  enabled: true
