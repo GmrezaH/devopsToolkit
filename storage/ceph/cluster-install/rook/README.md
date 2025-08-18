@@ -29,20 +29,35 @@ The Helm charts are intended to simplify deployment and upgrades. Configuring th
 
 ### Adding the Helm Repository
 
-The release channel is the most recent release of Rook that is considered stable for the community. Add and update the `rook-release` Helm repository (or configure a local mirror for offline setups).
+The release channel is the most recent release of Rook that is considered stable for the community.
 
-```bash
-helm repo add rook-release https://charts.rook.io/release --force-update
-```
+- **Online environments**: Add and update the `rook-release` Helm repository (or configure a local mirror for offline setups).
+
+  ```bash
+  helm repo add rook-release https://charts.rook.io/release --force-update
+  ```
+
+- **Air-gapped environments**: configure a local Nexus repository and upload the Helm charts:
+
+  ```bash
+  helm pull rook-release/rook-ceph --version v1.17.7 --destination /opt/helm-charts
+  helm pull rook-release/rook-ceph-cluster --version v1.17.7 --destination /opt/helm-charts
+  ```
+
+  Transfer charts to the Nexus helm repository and add the repository to helm repos:
+
+  ```bash
+  helm repo add nexus http://<Nexus_IP>:8081/repository/helm
+  ```
 
 ### Prepare nodes
 
 Label Kubernetes nodes with attached disks for Ceph storage to enable node selection by the Rook operator:
 
 ```bash
-kubectl label nodes master1 disktype=ssd
-kubectl label nodes master2 disktype=ssd
-kubectl label nodes master3 disktype=ssd
+kubectl label nodes master1 disk=ssd
+kubectl label nodes master2 disk=ssd
+kubectl label nodes master3 disk=ssd
 ```
 
 Verify node labels:
@@ -79,7 +94,7 @@ Creates Rook resources to configure a [Ceph](https://ceph.io/en/) cluster using 
 - Toolbox
 
 1. Review and customize the [rook-ceph-cluster-values.yaml](./rook-ceph-cluster-values.yaml) file, ensuring:
-   - `operatorNamespace` matches the operator's namespace (e.g., `rook-ceph`).
+   - If the operator was installed in a namespace other than `rook-ceph`, the namespace must be set in the `operatorNamespace` variable.
    - Storage configurations align with your disk setup.
    - Air-gapped repository settings point to your Nexus instance.
 1. Install the chart:
