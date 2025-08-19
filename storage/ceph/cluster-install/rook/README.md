@@ -50,21 +50,41 @@ The release channel is the most recent release of Rook that is considered stable
   helm repo add nexus http://<Nexus_IP>:8081/repository/helm
   ```
 
-### Prepare nodes
+### Preparation
 
-Label Kubernetes nodes with attached disks for Ceph storage to enable node selection by the Rook operator:
+1. Label Kubernetes nodes with attached disks for Ceph storage to enable node selection by the Rook operator:
 
-```bash
-kubectl label nodes master1 disktype=ssd
-kubectl label nodes master2 disktype=ssd
-kubectl label nodes master3 disktype=ssd
-```
+   ```bash
+   kubectl label nodes master1 disktype=ssd
+   kubectl label nodes master2 disktype=ssd
+   kubectl label nodes master3 disktype=ssd
+   kubectl label nodes worker1 role=storage-node
+   kubectl label nodes worker2 role=storage-node
+   kubectl label nodes worker3 role=storage-node
+   ```
 
-Verify node labels:
+   Verify node labels:
 
-```bash
-kubectl get nodes --show-labels
-```
+   ```bash
+   kubectl get nodes --show-labels
+   ```
+
+1. Create `rook-ceph` namespace with `privileged` pod security level:
+
+   ```yaml
+   apiVersion: v1
+   kind: Namespace
+   metadata:
+     name: rook-ceph
+     labels:
+       kubernetes.io/metadata.name: rook-ceph
+       pod-security.kubernetes.io/audit: privileged
+       pod-security.kubernetes.io/audit-version: v1.32
+       pod-security.kubernetes.io/enforce: privileged
+       pod-security.kubernetes.io/enforce-version: v1.32
+       pod-security.kubernetes.io/warn: privileged
+       pod-security.kubernetes.io/warn-version: v1.32
+   ```
 
 ### Ceph Operator Helm Chart
 
@@ -136,7 +156,7 @@ To scale the Ceph Object Store (RGW) services:
 1. Scale RGW to 3 replicas on specified nodes:
 
    ```bash
-   kubectl -n rook-ceph exec -ti deployments.apps/rook-ceph-tools -- ceph orch apply rgw ceph-objectstore --realm=ceph-objectstore --zone=ceph-objectstore --zonegroup=ceph-objectstore --placement="3 master1 master2 master3"
+   kubectl -n rook-ceph exec -ti deployments.apps/rook-ceph-tools -- ceph orch apply rgw ceph-objectstore --realm=ceph-objectstore --zone=ceph-objectstore --zonegroup=ceph-objectstore --placement="3 worker1 worker2 worker3"
    ```
 
 1. Verify the updated RGW services:

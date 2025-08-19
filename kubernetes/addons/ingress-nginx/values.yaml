@@ -20,6 +20,8 @@ controller:
     readOnlyRootFilesystem: false
   watchIngressWithoutClass: true
   allowSnippetAnnotations: true
+  # config:
+  #   annotations-risk-level: Critical
   ingressClassResource:
     name: nginx
     enabled: true

@@ -1,0 +1,380 @@
+operatorNamespace: rook-ceph
+clusterName: rook-ceph
+kubeVersion: v1.32.5
+
+configOverride: |
+  [global]
+  mon_allow_pool_delete = true
+  osd_pool_default_size = 3
+  osd_pool_default_min_size = 1
+
+toolbox:
+  enabled: true
+  #image: quay.io/ceph/ceph:v19.2.3
+  containerSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 2016
+    runAsGroup: 2016
+    capabilities:
+      drop: ["ALL"]
+  resources:
+    limits:
+      cpu: "400m"
+      memory: "1Gi"
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+
+monitoring:
+  enabled: false
+  # -- Whether to disable the metrics reported by Ceph. If false, the prometheus mgr module and Ceph exporter are enabled
+  metricsDisabled: false
+  # -- Whether to create the Prometheus rules for Ceph alerts
+  createPrometheusRules: false
+  # -- Edit Prometheus rules for Ceph alerts
+  prometheusRuleOverrides:
+    {}
+    # CephHealthWarning:
+    #   disabled: true
+    # NVMeoFHighWriteLatency:
+    #   for: 3m
+    #   labels:
+    #     severity: critical
+  # -- The namespace in which to create the prometheus rules, if different from the rook cluster namespace.
+  # If you have multiple rook-ceph clusters in the same k8s cluster, choose the same namespace (ideally, namespace with prometheus
+  # deployed) to set rulesNamespaceOverride for all the clusters. Otherwise, you will get duplicate alerts with multiple alert definitions.
+  rulesNamespaceOverride:
+  # Monitoring settings for external clusters:
+  # externalMgrEndpoints: <list of endpoints>
+  # externalMgrPrometheusPort: <port>
+  # Scrape interval for prometheus
+  # interval: 10s
+  # allow adding custom labels and annotations to the prometheus rule
+  prometheusRule:
+    # -- Labels applied to PrometheusRule
+    labels: {}
+    # -- Annotations applied to PrometheusRule
+    annotations: {}
+
+pspEnable: true
+
+cephClusterSpec:
+  cephVersion:
+    image: quay.io/ceph/ceph:v19.2.3
+    allowUnsupported: false
+
+  # The path on the host where configuration files will be persisted. Must be specified. If there are multiple clusters, the directory must be unique for each cluster.
+  # Important: if you reinstall the cluster, make sure you delete this directory from each host or else the mons will fail to start on the new cluster.
+  dataDirHostPath: /var/lib/rook
+  skipUpgradeChecks: false
+  continueUpgradeAfterChecksEvenIfNotHealthy: false
+  waitTimeoutForHealthyOSDInMinutes: 10
+  upgradeOSDRequiresHealthyPGs: false
+
+  mon:
+    count: 3
+    allowMultiplePerNode: false
+
+  mgr:
+    count: 2
+    allowMultiplePerNode: false
+    modules:
+      - name: rook
+        enabled: true
+
+  dashboard:
+    enabled: true
+    urlPrefix: /
+    port: 8443
+    ssl: true
+
+  network:
+    connections:
+      encryption:
+        enabled: false
+      compression:
+        enabled: false
+      requireMsgr2: false
+      provider: host
+
+  crashCollector:
+    disable: false
+    # daysToRetain: 30
+
+  logCollector:
+    enabled: true
+    periodicity: daily # one of: hourly, daily, weekly, monthly
+    maxLogSize: 100M # SUFFIX may be 'M' or 'G'. Must be at least 1M.
+
+  cleanupPolicy:
+    confirmation: ""
+    sanitizeDisks:
+      method: quick
+      dataSource: zero
+      iteration: 1
+    allowUninstallWithVolumes: false
+
+  placement:
+    all:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+              - key: role
+                operator: In
+                values:
+                - storage-node
+
+  resources:
+    mgr:
+      limits:
+        memory: "1Gi"
+      requests:
+        cpu: "500m"
+        memory: "512Mi"
+    mon:
+      limits:
+        memory: "2Gi"
+      requests:
+        cpu: "1000m"
+        memory: "1Gi"
+    osd:
+      limits:
+        memory: "4Gi"
+      requests:
+        cpu: "1000m"
+        memory: "2Gi"
+    prepareosd:
+      requests:
+        cpu: "500m"
+        memory: "50Mi"
+    mgr-sidecar:
+      limits:
+        memory: "100Mi"
+      requests:
+        cpu: "100m"
+        memory: "40Mi"
+    crashcollector:
+      limits:
+        memory: "60Mi"
+      requests:
+        cpu: "100m"
+        memory: "60Mi"
+    logcollector:
+      limits:
+        memory: "1Gi"
+      requests:
+        cpu: "100m"
+        memory: "100Mi"
+    cleanup:
+      limits:
+        memory: "1Gi"
+      requests:
+        cpu: "500m"
+        memory: "100Mi"
+    exporter:
+      limits:
+        memory: "128Mi"
+      requests:
+        cpu: "50m"
+        memory: "50Mi"
+
+  removeOSDsIfOutAndSafeToRemove: false
+
+  priorityClassNames:
+    mon: system-node-critical
+    osd: system-node-critical
+    mgr: system-cluster-critical
+
+  storage:
+    useAllNodes: false
+    useAllDevices: false
+    config:
+      storeType: bluestore
+      osdsPerDevice: "1"
+    nodes:
+      - name: "worker1"
+        devices:
+          - name: "/dev/sdb"
+        config:
+          storeType: bluestore
+      - name: "worker2"
+        devices:
+          - name: "/dev/sdb"
+        config:
+          storeType: bluestore
+      - name: "worker3"
+        devices:
+          - name: "/dev/sdb"
+        config:
+          storeType: bluestore
+
+  disruptionManagement:
+    managePodBudgets: true
+    osdMaintenanceTimeout: 30
+
+  healthCheck:
+    daemonHealth:
+      mon:
+        disabled: false
+        interval: 45s
+      osd:
+        disabled: false
+        interval: 60s
+      status:
+        disabled: false
+        interval: 60s
+    livenessProbe:
+      mon:
+        disabled: false
+      mgr:
+        disabled: false
+      osd:
+        disabled: false
+
+ingress:
+  dashboard:
+    annotations:
+      cert-manager.io/cluster-issuer: cluster-ca-issuer
+      nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    host:
+      name: dashboard.ceph.testbed.moh
+      path: /
+    tls:
+    - hosts:
+        - dashboard.ceph.testbed.moh
+      secretName: dashboard.ceph.testbed.moh-secret-tls
+    ingressClassName: nginx
+
+cephBlockPools:
+  - name: ceph-blockpool
+    spec:
+      failureDomain: host
+      replicated:
+        size: 3
+      enableRBDStats: true
+    storageClass:
+      enabled: true
+      name: ceph-block
+      isDefault: true
+      reclaimPolicy: Delete
+      allowVolumeExpansion: true
+      volumeBindingMode: "Immediate"
+      parameters:
+        imageFormat: "2"
+        imageFeatures: layering
+        csi.storage.k8s.io/provisioner-secret-name: rook-csi-rbd-provisioner
+        csi.storage.k8s.io/provisioner-secret-namespace: "{{ .Release.Namespace }}"
+        csi.storage.k8s.io/controller-expand-secret-name: rook-csi-rbd-provisioner
+        csi.storage.k8s.io/controller-expand-secret-namespace: "{{ .Release.Namespace }}"
+        csi.storage.k8s.io/node-stage-secret-name: rook-csi-rbd-node
+        csi.storage.k8s.io/node-stage-secret-namespace: "{{ .Release.Namespace }}"
+        csi.storage.k8s.io/fstype: ext4
+
+cephFileSystems:
+  - name: ceph-filesystem
+    spec:
+      metadataPool:
+        replicated:
+          size: 3
+      dataPools:
+        - failureDomain: host
+          replicated:
+            size: 3
+          name: data0
+      metadataServer:
+        activeCount: 1
+        activeStandby: true
+        resources:
+          limits:
+            memory: "4Gi"
+          requests:
+            cpu: "1000m"
+            memory: "4Gi"
+        priorityClassName: system-cluster-critical
+    storageClass:
+      enabled: true
+      isDefault: false
+      name: ceph-filesystem
+      pool: data0
+      reclaimPolicy: Delete
+      allowVolumeExpansion: true
+      volumeBindingMode: "Immediate"
+      parameters:
+        csi.storage.k8s.io/provisioner-secret-name: rook-csi-cephfs-provisioner
+        csi.storage.k8s.io/provisioner-secret-namespace: "{{ .Release.Namespace }}"
+        csi.storage.k8s.io/controller-expand-secret-name: rook-csi-cephfs-provisioner
+        csi.storage.k8s.io/controller-expand-secret-namespace: "{{ .Release.Namespace }}"
+        csi.storage.k8s.io/node-stage-secret-name: rook-csi-cephfs-node
+        csi.storage.k8s.io/node-stage-secret-namespace: "{{ .Release.Namespace }}"
+        csi.storage.k8s.io/fstype: ext4
+
+cephFileSystemVolumeSnapshotClass:
+  enabled: false
+  name: ceph-filesystem
+  isDefault: true
+  deletionPolicy: Delete
+
+cephBlockPoolsVolumeSnapshotClass:
+  enabled: false
+  name: ceph-block
+  isDefault: false
+  deletionPolicy: Delete
+
+cephObjectStores:
+  - name: ceph-objectstore
+    spec:
+      metadataPool:
+        failureDomain: host
+        replicated:
+          size: 3
+      dataPool:
+        failureDomain: host
+        erasureCoded:
+          dataChunks: 2
+          codingChunks: 1
+        # parameters:
+        #   bulk: "true"
+      preservePoolsOnDelete: true
+      gateway:
+        port: 80
+        resources:
+          limits:
+            memory: "2Gi"
+          requests:
+            cpu: "1000m"
+            memory: "1Gi"
+        # securePort: 443
+        # sslCertificateRef:
+        instances: 1
+        priorityClassName: system-cluster-critical
+        # opsLogSidecar:
+        #   resources:
+        #     limits:
+        #       memory: "100Mi"
+        #     requests:
+        #       cpu: "100m"
+        #       memory: "40Mi"
+    storageClass:
+      enabled: true
+      name: ceph-bucket
+      reclaimPolicy: Delete
+      volumeBindingMode: "Immediate"
+      parameters:
+        region: us-east-1
+    ingress:
+      enabled: true
+      # port: 80
+      annotations:
+        cert-manager.io/cluster-issuer: cluster-ca-issuer
+        nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      host:
+        name: objectstore.example.com
+        path: /
+        pathType: Prefix
+      tls:
+      - hosts:
+          - objectstore.ceph.testbed.moh
+        secretName: objectstore.ceph.testbed.moh-secret-tls
+      ingressClassName: nginx

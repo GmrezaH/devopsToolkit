@@ -105,7 +105,6 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: my-selfsigned-ca
-  # Create CA root secret in `cert-manager` namespace instead of `sandbox` namespace.
   namespace: cert-manager
 spec:
   isCA: true
@@ -125,7 +124,6 @@ metadata:
   name: my-ca-issuer
 spec:
   ca:
-    # `ClusterIssuer` resource is not namespaced, so `secretName` is assumed to reference secret in `cert-manager` namespace.
     secretName: root-secret
 ```
 
