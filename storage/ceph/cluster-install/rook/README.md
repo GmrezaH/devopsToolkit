@@ -113,7 +113,8 @@ Creates Rook resources to configure a [Ceph](https://ceph.io/en/) cluster using 
 - Ingress for external access to the dashboard
 - Toolbox
 
-> [!IMPORTANT] > `dataDirHostPath` (default: /var/lib/rook) is the path on the host where configuration files will be persisted. Must be specified. If there are multiple clusters, the directory must be unique for each cluster. If you are reinstalling the cluster, make sure you delete this directory from each host or else the mons will fail to start on the new cluster.
+> [!IMPORTANT]
+> The `dataDirHostPath` (default: /var/lib/rook) is the path on the host where configuration files will be persisted. Must be specified. If there are multiple clusters, the directory must be unique for each cluster. If you are reinstalling the cluster, make sure you delete this directory from each host or else the mons will fail to start on the new cluster.
 
 1. Review and customize the [rook-ceph-cluster-values.yaml](./rook-ceph-cluster-values.yaml) file, ensuring:
 
