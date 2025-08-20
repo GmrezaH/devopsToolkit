@@ -113,8 +113,7 @@ Creates Rook resources to configure a [Ceph](https://ceph.io/en/) cluster using 
 - Ingress for external access to the dashboard
 - Toolbox
 
-> [!IMPORTANT]
-> `dataDirHostPath` (default: /var/lib/rook) is the path on the host where configuration files will be persisted. Must be specified. If there are multiple clusters, the directory must be unique for each cluster. If you are reinstalling the cluster, make sure you delete this directory from each host or else the mons will fail to start on the new cluster.
+> [!IMPORTANT] > `dataDirHostPath` (default: /var/lib/rook) is the path on the host where configuration files will be persisted. Must be specified. If there are multiple clusters, the directory must be unique for each cluster. If you are reinstalling the cluster, make sure you delete this directory from each host or else the mons will fail to start on the new cluster.
 
 1. Review and customize the [rook-ceph-cluster-values.yaml](./rook-ceph-cluster-values.yaml) file, ensuring:
 
@@ -182,6 +181,64 @@ kubectl -n rook-ceph exec -ti deployments.apps/rook-ceph-tools -- ceph status
 ```
 
 Ensure the cluster reports `HEALTH_OK` or address any warnings.
+
+## Cleaning up a Cluster
+
+To tear down the cluster, the following resources need to be cleaned up:
+
+- The resources created under Rook's namespace (default rook-ceph) such as the Rook operator and the cluster CR.
+- All files under `dataDirHostPath` (default `/var/lib/rook`): Path on each host in the cluster where configuration is stored by ceph daemons.
+- Devices used by the OSDs
+
+### Delete the Block and File artifacts
+
+First clean up the resources from applications that consume the Rook storage.
+
+> [!IMPORTANT]
+> After applications have been cleaned up, the Rook cluster can be removed. It is important to delete applications before removing the Rook operator and Ceph cluster. Otherwise, volumes may hang and nodes may require a restart.
+
+### Delete the CephCluster CRD
+
+> [!WARNING]
+> DATA WILL BE PERMANENTLY DELETED AFTER DELETING THE `CephCluster`
+
+1. To instruct Rook to wipe the host paths and volumes, edit the `CephCluster` and add the `cleanupPolicy`:
+
+   ```bash
+   kubectl -n rook-ceph patch cephcluster rook-ceph --type merge -p '{"spec":{"cleanupPolicy":{"confirmation":"yes-really-destroy-data"}}}'
+   ```
+
+   Once the cleanup policy is enabled, any new configuration changes in the CephCluster will be blocked. Nothing will happen until the deletion of the CR is requested, so this `cleanupPolicy` change can still be reverted if needed.
+
+1. Delete the CephCluster CR.
+
+   ```bash
+   helm -n rook-ceph uninstall rook-ceph-cluster
+   ```
+
+1. Verify that the cluster CR has been deleted before continuing to the next step.
+
+   ```bash
+   kubectl -n rook-ceph get cephcluster
+   ```
+
+1. If the `cleanupPolicy` was applied, wait for the `rook-ceph-cleanup` jobs to be completed on all the nodes.
+
+   These jobs will perform the following operations:
+
+   - Delete the all files under `dataDirHostPath` on all the nodes
+   - Wipe the data on the drives on all the nodes where OSDs were running in this cluster
+
+> [!NOTE]
+> The cleanup jobs might not start if the resources created on top of Rook Cluster are not deleted completely. See [deleting block and file artifacts](https://rook.io/docs/rook/latest-release/Storage-Configuration/ceph-teardown/#delete-the-block-and-file-artifacts)
+
+### Delete the Operator Resources
+
+Remove the Rook operator, RBAC, and CRDs, and the `rook-ceph` namespace.
+
+```bash
+helm -n rook-ceph uninstall rook-ceph
+```
 
 ## Resources
 

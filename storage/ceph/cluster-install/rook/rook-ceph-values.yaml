@@ -59,6 +59,7 @@ csi:
   cephFSKernelMountOptions:
   enableMetadata: false
   provisionerReplicas: 3
+  clusterName: testbed
 
   csiRBDProvisionerResource: |
     - name : csi-provisioner
@@ -134,7 +135,7 @@ csi:
           cpu: 250m
         limits:
           memory: 1Gi
-          cpu: 100m
+          cpu: 500m
     - name : liveness-prometheus
       resource:
         requests:

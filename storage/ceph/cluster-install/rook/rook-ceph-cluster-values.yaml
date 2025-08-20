@@ -104,7 +104,7 @@ cephClusterSpec:
   logCollector:
     enabled: true
     periodicity: daily # one of: hourly, daily, weekly, monthly
-    maxLogSize: 100M # SUFFIX may be 'M' or 'G'. Must be at least 1M.
+    maxLogSize: 500M # SUFFIX may be 'M' or 'G'. Must be at least 1M.
 
   cleanupPolicy:
     confirmation: ""
@@ -212,6 +212,7 @@ cephClusterSpec:
   disruptionManagement:
     managePodBudgets: true
     osdMaintenanceTimeout: 30
+    pgHealthCheckTimeout: 0
 
   healthCheck:
     daemonHealth:
@@ -239,12 +240,12 @@ ingress:
       nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
       nginx.ingress.kubernetes.io/ssl-redirect: "true"
     host:
-      name: dashboard.ceph.testbed.moh
+      name: dashboard.ceph.example.com
       path: /
     tls:
     - hosts:
-        - dashboard.ceph.testbed.moh
-      secretName: dashboard.ceph.testbed.moh-secret-tls
+        - dashboard.ceph.example.com
+      secretName: dashboard.ceph.example.com-secret-tls
     ingressClassName: nginx
 
 cephBlockPools:
@@ -370,11 +371,11 @@ cephObjectStores:
         cert-manager.io/cluster-issuer: cluster-ca-issuer
         nginx.ingress.kubernetes.io/ssl-redirect: "true"
       host:
-        name: objectstore.example.com
+        name: objectstore.ceph.example.com
         path: /
         pathType: Prefix
       tls:
       - hosts:
-          - objectstore.ceph.testbed.moh
-        secretName: objectstore.ceph.testbed.moh-secret-tls
+          - objectstore.ceph.example.com
+        secretName: objectstore.ceph.example.com-secret-tls
       ingressClassName: nginx
