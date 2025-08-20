@@ -1,6 +1,10 @@
 # cert-manager Installation and Configuration
 
-cert-manager creates TLS certificates for workloads in your Kubernetes or OpenShift cluster and renews the certificates before they expire.
+<div align="center">
+  <img src="../../../images/cert-manager.svg" alt="Cert Manager logo" />
+</div>
+
+[cert-manager](https://cert-manager.io/) creates TLS certificates for workloads in your Kubernetes or OpenShift cluster and renews the certificates before they expire.
 
 cert-manager can obtain certificates from a variety of certificate authorities, including: [Let's Encrypt](https://cert-manager.io/docs/configuration/acme/), [HashiCorp Vault](https://cert-manager.io/docs/configuration/vault/), [Venafi](https://cert-manager.io/docs/configuration/venafi/), [private PKI](https://cert-manager.io/docs/configuration/ca/) and [SelfSigned](https://cert-manager.io/docs/configuration/selfsigned/).
 

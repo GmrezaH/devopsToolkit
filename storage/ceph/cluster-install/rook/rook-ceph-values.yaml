@@ -30,7 +30,7 @@ rbacEnable: true
 rbacAggregate:
   enableOBCs: true
 
-pspEnable: true
+pspEnable: false
 
 containerSecurityContext:
   runAsNonRoot: true

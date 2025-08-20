@@ -1,6 +1,10 @@
-# ingress-nginx Installation and Configuration
+# k8tz Installation
 
-[k8tz](https://github.com/k8tz/k8tz) is a kubernetes admission controller and a CLI tool to inject timezones into Pods and CronJobs1.
+<div align="center">
+  <img src="../../../images/k8tz.png" alt="k8tz logo" />
+</div>
+
+[k8tz](https://github.com/k8tz/k8tz) is a kubernetes admission controller and a CLI tool to inject timezones into Pods and CronJobs.
 
 Containers do not inherit timezones from host machines and have only accessed to the clock from the kernel. The default timezone for most images is UTC, yet it is not guaranteed and may be different from container to container. With `k8tz` it is easy to standardize selected timezone across pods and namespaces automatically with minimal effort.
 

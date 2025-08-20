@@ -1,5 +1,15 @@
 # Deploying Zabbix with MariaDB
 
+<div align="center">
+  <img src="../../images/zabbix.png" alt="zabbix logo" />
+</div>
+
+[Zabbix](https://www.zabbix.com/) is an enterprise-class open source distributed monitoring solution.
+
+Zabbix is a software that monitors numerous parameters of a network and the health and integrity of servers, virtual machines, applications, services, databases, websites, the cloud and more. Zabbix uses a flexible notification mechanism that allows users to configure email-based alerts for virtually any event. This allows a fast reaction to server problems. Zabbix offers excellent reporting and data visualization features based on the stored data. This makes Zabbix ideal for capacity planning.
+
+Zabbix supports both polling and trapping. All Zabbix reports and statistics, as well as configuration parameters, are accessed through a web-based frontend. A web-based frontend ensures that the status of your network and the health of your servers can be assessed from any location. Properly configured, Zabbix can play an important role in monitoring IT infrastructure. This is equally true for small organizations with a few servers and for large companies with a multitude of servers.
+
 ## Pre-install
 
 1. Check [Zabbix official requirements](https://www.zabbix.com/documentation/current/en/manual/installation/requirements)

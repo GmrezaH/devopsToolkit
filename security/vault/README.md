@@ -1,5 +1,15 @@
 # Deploying HashiCorp Vault with HA and TLS in Kubernetes
 
+<div align="center">
+  <img src="../../images/hashicorp-vault.png" alt="Hashicorp Vault logo" />
+</div>
+
+[Vault](https://www.hashicorp.com/en/products/vault) provides centralized, well-audited privileged access and secret management for mission-critical data whether you deploy systems on-premises, in the cloud, or in a hybrid environment.
+
+With a modular design based around a growing plugin ecosystem, Vault lets you integrate with your existing systems and customize your application workflow.
+
+## Overview
+
 This guide outlines the steps to deploy HashiCorp Vault in a Kubernetes cluster with high availability (HA) using the Raft storage backend and TLS for secure communication. It includes creating TLS certificates using the Kubernetes CA, installing Vault via Helm, initializing the Vault cluster, and verifying the HA setup.
 
 ## Version Information
