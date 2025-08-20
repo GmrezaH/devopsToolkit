@@ -1,0 +1,49 @@
+kind: Deployment
+replicaCount: 1
+
+namespace: k8tz  # set to `null` to use helm built-in namespace
+createNamespace: false  # set to `false` to disable namespace creation by the helm chart
+injectionStrategy: initContainer
+timezone: Asia/Tehran
+injectedInitContainerName: k8tz
+injectAll: true
+cronJobTimeZone: false  # requires kubernetes >=1.24.0-beta.0 with 'CronJobTimeZone' feature gate enabled (alpha)
+verbose: false
+
+image:
+  repository: quay.io/k8tz/k8tz
+  pullPolicy: IfNotPresent
+  tag: ""
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+initContainerResources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi

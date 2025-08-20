@@ -208,6 +208,18 @@ First clean up the resources from applications that consume the Rook storage.
    kubectl -n rook-ceph patch cephcluster rook-ceph --type merge -p '{"spec":{"cleanupPolicy":{"confirmation":"yes-really-destroy-data"}}}'
    ```
 
+   _OR_
+
+   Edit the `rook-ceph-cluster-values.yaml` and set `cephClusterSpec.cleanupPolicy.confirmation: "yes-really-destroy-data"` and upgrade the cluster:
+
+   ```bash
+   helm upgrade --install rook-ceph-cluster rook-release/rook-ceph-cluster \
+     --namespace rook-ceph \
+     --create-namespace \
+     --version v1.17.7 \
+     -f rook-ceph-cluster-values.yaml
+   ```
+
    Once the cleanup policy is enabled, any new configuration changes in the CephCluster will be blocked. Nothing will happen until the deletion of the CR is requested, so this `cleanupPolicy` change can still be reverted if needed.
 
 1. Delete the CephCluster CR.
