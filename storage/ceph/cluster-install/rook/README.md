@@ -75,19 +75,20 @@ The release channel is the most recent release of Rook that is considered stable
 
 1. Create `rook-ceph` namespace with `privileged` pod security level:
 
-   ```yaml
+   ```bash
+   cat <<EOF | kubectl apply -f -
    apiVersion: v1
    kind: Namespace
    metadata:
      name: rook-ceph
      labels:
-       kubernetes.io/metadata.name: rook-ceph
-       pod-security.kubernetes.io/audit: privileged
-       pod-security.kubernetes.io/audit-version: v1.32
-       pod-security.kubernetes.io/enforce: privileged
-       pod-security.kubernetes.io/enforce-version: v1.32
-       pod-security.kubernetes.io/warn: privileged
-       pod-security.kubernetes.io/warn-version: v1.32
+          pod-security.kubernetes.io/audit: privileged
+          pod-security.kubernetes.io/audit-version: v1.32
+          pod-security.kubernetes.io/enforce: privileged
+          pod-security.kubernetes.io/enforce-version: v1.32
+          pod-security.kubernetes.io/warn: privileged
+          pod-security.kubernetes.io/warn-version: v1.32
+   EOF
    ```
 
 ### Ceph Operator Helm Chart

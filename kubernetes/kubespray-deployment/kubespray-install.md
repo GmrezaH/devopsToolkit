@@ -268,6 +268,11 @@ Review and modify the group variables in `inventory/mycluster/group_vars` to sui
    etcd_deployment_type: kubeadm
    etcd_metrics_port: 2381
    etcd_listen_metrics_urls: "http://0.0.0.0:2381"
+   etcd_metrics_service_labels:
+     k8s-app: etcd
+     app.kubernetes.io/managed-by: Kubespray
+     app: kube-prometheus-stack-kube-etcd
+     release: kube-prometheus-stack
    ```
 
 1. Update `group_vars/all/offline.yml` for air-gapped environments:
