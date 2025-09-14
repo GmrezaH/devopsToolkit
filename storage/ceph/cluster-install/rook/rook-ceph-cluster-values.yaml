@@ -125,6 +125,10 @@ cephClusterSpec:
                 values:
                 - storage-node
 
+  labels:
+    monitoring:
+      release: kube-prometheus-stack
+
   resources:
     mgr:
       limits:
