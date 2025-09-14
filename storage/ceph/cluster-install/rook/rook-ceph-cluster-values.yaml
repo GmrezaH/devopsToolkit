@@ -26,35 +26,9 @@ toolbox:
       memory: "128Mi"
 
 monitoring:
-  enabled: false
-  # -- Whether to disable the metrics reported by Ceph. If false, the prometheus mgr module and Ceph exporter are enabled
-  metricsDisabled: false
-  # -- Whether to create the Prometheus rules for Ceph alerts
-  createPrometheusRules: false
-  # -- Edit Prometheus rules for Ceph alerts
-  prometheusRuleOverrides:
-    {}
-    # CephHealthWarning:
-    #   disabled: true
-    # NVMeoFHighWriteLatency:
-    #   for: 3m
-    #   labels:
-    #     severity: critical
-  # -- The namespace in which to create the prometheus rules, if different from the rook cluster namespace.
-  # If you have multiple rook-ceph clusters in the same k8s cluster, choose the same namespace (ideally, namespace with prometheus
-  # deployed) to set rulesNamespaceOverride for all the clusters. Otherwise, you will get duplicate alerts with multiple alert definitions.
-  rulesNamespaceOverride:
-  # Monitoring settings for external clusters:
-  # externalMgrEndpoints: <list of endpoints>
-  # externalMgrPrometheusPort: <port>
-  # Scrape interval for prometheus
-  # interval: 10s
-  # allow adding custom labels and annotations to the prometheus rule
-  prometheusRule:
-    # -- Labels applied to PrometheusRule
-    labels: {}
-    # -- Annotations applied to PrometheusRule
-    annotations: {}
+  enabled: true
+  metricsDisabled: true
+  createPrometheusRules: true
 
 pspEnable: false
 

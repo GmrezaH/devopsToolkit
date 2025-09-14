@@ -227,7 +227,7 @@ csi:
     enabled: true
     interval: 10s
     labels:
-      release: prometheus-stack
+      release: kube-prometheus-stack
     namespace:
 
   cephcsi:
