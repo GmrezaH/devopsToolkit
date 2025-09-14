@@ -188,6 +188,16 @@ kubectl -n rook-ceph exec -ti deployments.apps/rook-ceph-tools -- ceph status
 
 Ensure the cluster reports `HEALTH_OK` or address any warnings.
 
+## Monitoring
+
+The following Grafana dashboards are available:
+
+- [Ceph - Cluster (ID: 2842)](https://grafana.com/grafana/dashboards/2842-ceph-cluster/)
+- [Ceph - OSD (Single) (ID: 5336)](https://grafana.com/grafana/dashboards/5336-ceph-osd-single/)
+- [Ceph - Pools (ID: 5342)](https://grafana.com/grafana/dashboards/5342-ceph-pools/)
+
+The dashboard JSON files are also available on [GitHub here ` /deploy/examples/monitoring/grafana/`](https://github.com/rook/rook/tree/master/deploy/examples/monitoring/grafana/).
+
 ## Cleaning up a Cluster
 
 To tear down the cluster, the following resources need to be cleaned up:
