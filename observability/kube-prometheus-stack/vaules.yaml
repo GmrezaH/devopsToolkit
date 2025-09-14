@@ -280,3 +280,4 @@ prometheus:
       fsGroup: 2000
       seccompProfile:
         type: RuntimeDefault
+    ignoreNamespaceSelectors: true
