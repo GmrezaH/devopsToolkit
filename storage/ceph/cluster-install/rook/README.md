@@ -188,6 +188,22 @@ kubectl -n rook-ceph exec -ti deployments.apps/rook-ceph-tools -- ceph status
 
 Ensure the cluster reports `HEALTH_OK` or address any warnings.
 
+### Install Rook kubectl plugin
+
+1. Install [krew](https://krew.sigs.k8s.io/docs/user-guide/setup/install/)
+
+1. Install Rook plugin
+
+   ```bash
+   kubectl krew install rook-ceph
+   ```
+
+1. Run any `ceph` command with `kubectl rook-ceph ceph <args>`. For example, get the Ceph status:
+
+   ```bash
+   kubectl rook-ceph ceph status
+   ```
+
 ## Monitoring
 
 The following Grafana dashboards are available:
