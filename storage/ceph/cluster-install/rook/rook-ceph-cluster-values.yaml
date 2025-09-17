@@ -29,6 +29,10 @@ monitoring:
   enabled: true
   metricsDisabled: true
   createPrometheusRules: true
+  prometheusRule:
+    labels:
+      release: kube-prometheus-stack
+
 
 pspEnable: false
 
