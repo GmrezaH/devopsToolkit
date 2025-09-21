@@ -97,22 +97,18 @@ To authenticate users, generate certificates and create a kubeconfig file. Follo
     cat <<EOF > config
     apiVersion: v1
     kind: Config
-
     current-context: ${USER}@${CLUSTER_NAME}
-
     clusters:
       - name: ${CLUSTER_NAME}
         cluster:
           certificate-authority-data: $(kubectl get cm kube-root-ca.crt -o jsonpath='{.data.ca\.crt}' | base64 -w0)
           server: ${KUBE_API}
-
     contexts:
       - name: ${USER}@${CLUSTER_NAME}
         context:
           user: ${USER}
           cluster: ${CLUSTER_NAME}
           namespace: ${NS}
-
     users:
       - name: ${USER}
         user:
