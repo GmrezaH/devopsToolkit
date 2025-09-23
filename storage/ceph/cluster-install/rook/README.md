@@ -286,10 +286,10 @@ helm -n rook-ceph uninstall rook-ceph
 
 ## Resources
 
-- [Rook Ceph docs](https://rook.io/docs/rook/latest-release/Getting-Started/intro/)
+- [Rook Ceph](https://rook.io/docs/rook/latest-release/Getting-Started/intro/)
 
 - [Rook Ceph helm charts](https://rook.io/docs/rook/latest-release/Helm-Charts/helm-charts/)
 
-- [Rook Ceph Cleanup doc](https://rook.io/docs/rook/latest-release/Storage-Configuration/ceph-teardown/)
+- [Rook Ceph Cleanup](https://rook.io/docs/rook/latest-release/Storage-Configuration/ceph-teardown/)
 
-- [Rook Monitoring doc](https://rook.io/docs/rook/latest/Storage-Configuration/Monitoring/ceph-monitoring/#customize-alerts)
+- [Rook Monitoring](https://rook.io/docs/rook/latest/Storage-Configuration/Monitoring/ceph-monitoring/#customize-alerts)

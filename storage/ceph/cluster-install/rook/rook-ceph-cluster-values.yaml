@@ -65,6 +65,8 @@ cephClusterSpec:
     urlPrefix: /
     port: 8443
     ssl: true
+    prometheusEndpoint: http://kube-prometheus-stack-prometheus.monitoring:9090
+    prometheusEndpointSSLVerify: false
 
   network:
     connections:
