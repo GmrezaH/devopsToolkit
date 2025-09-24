@@ -1,4 +1,4 @@
-# cert-manager Installation and Configuration
+# Argocd Installation and Configuration
 
 <div align="center">
   <img src="../../images/argo.png" alt="Argo logo" />
