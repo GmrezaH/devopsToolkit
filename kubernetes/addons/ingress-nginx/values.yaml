@@ -26,6 +26,9 @@ controller:
     name: nginx
     enabled: true
     default: true
+  podSecurityContext:
+    runAsNonRoot: true
+  containerSecurityContext: {}
   # -- Use a `DaemonSet` or `Deployment`
   kind: Deployment
   replicaCount: 1

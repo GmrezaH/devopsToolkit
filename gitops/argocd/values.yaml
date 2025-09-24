@@ -1,0 +1,590 @@
+nameOverride: argocd
+namespaceOverride: "argocd"
+
+createAggregateRoles: true
+createClusterRoles: true
+
+openshift:
+  enabled: false
+
+crds:
+  install: true
+  keep: true
+
+global:
+  domain: argocd.testbed.moh
+  image:
+    repository: quay.io/argoproj/argocd
+    tag: ""
+    imagePullPolicy: IfNotPresent
+  imagePullSecrets: []
+
+  logging:
+    # -- Set the global logging format. Either: `text` or `json`
+    format: text
+    # -- Set the global logging level. One of: `debug`, `info`, `warn` or `error`
+    level: info
+
+  addPrometheusAnnotations: false
+
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 999
+    runAsGroup: 999
+    fsGroup: 999
+
+  hostAliases: 
+    - ip: 10.20.30.40
+      hostnames:
+      - git.testbed.moh
+
+configs:
+  # General Argo CD configuration. Any values you put under `.configs.cm` are passed to argocd-cm ConfigMap.
+  ## Ref: https://github.com/argoproj/argo-cd/blob/master/docs/operator-manual/argocd-cm.yaml
+  cm:
+    create: true
+    exec.enabled: false
+    admin.enabled: true
+    timeout.reconciliation: 180s
+    timeout.hard.reconciliation: 0s
+
+  # Argo CD configuration parameters. Any values you put under `.configs.params` are passed to argocd-cmd-params-cm ConfigMap.
+  ## Ref: https://github.com/argoproj/argo-cd/blob/master/docs/operator-manual/argocd-cmd-params-cm.yaml
+  params:
+    create: true
+    controller.status.processors: 20
+    controller.operation.processors: 10
+    server.insecure: false
+    # -- Limit on number of concurrent manifests generate requests. Any value less the 1 means no limit.
+    reposerver.parallelism.limit: 0
+    applicationsetcontroller.namespaces: ""
+    application.namespaces: ""
+
+  # Argo CD RBAC policy configuration. Any values you put under `.configs.rbac` are passed to argocd-rbac-cm ConfigMap.
+  ## Ref: https://github.com/argoproj/argo-cd/blob/master/docs/operator-manual/rbac.md
+  rbac:
+    create: true
+    policy.default: ''
+    policy.csv: ''
+    # Policy rules are in the form:
+    #  p, subject, resource, action, object, effect
+    # Role definitions and bindings are in the form:
+    #  g, subject, inherited-subject
+    # policy.csv: |
+    #   p, role:org-admin, applications, *, */*, allow
+    #   p, role:org-admin, clusters, get, *, allow
+    #   p, role:org-admin, repositories, *, *, allow
+    #   p, role:org-admin, logs, get, *, allow
+    #   p, role:org-admin, exec, create, */*, allow
+    #   g, your-github-org:your-team, role:org-admin
+
+  # SSH known hosts for Git repositories. Any values you put under `.configs.ssh` are passed to argocd-ssh-known-hosts-cm ConfigMap.
+  ## Ref: https://argo-cd.readthedocs.io/en/stable/operator-manual/declarative-setup/#ssh-known-host-public-keys
+  ssh:
+    create: true
+    knownHosts: |
+      [ssh.github.com]:443 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg=
+      [ssh.github.com]:443 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl
+      [ssh.github.com]:443 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk=
+      bitbucket.org ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBPIQmuzMBuKdWeF4+a2sjSSpBK0iqitSQ+5BM9KhpexuGt20JpTVM7u5BDZngncgrqDMbWdxMWWOGtZ9UgbqgZE=
+      bitbucket.org ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIazEu89wgQZ4bqs3d63QSMzYVa0MuJ2e2gKTKqu+UUO
+      bitbucket.org ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDQeJzhupRu0u0cdegZIa8e86EG2qOCsIsD1Xw0xSeiPDlCr7kq97NLmMbpKTX6Esc30NuoqEEHCuc7yWtwp8dI76EEEB1VqY9QJq6vk+aySyboD5QF61I/1WeTwu+deCbgKMGbUijeXhtfbxSxm6JwGrXrhBdofTsbKRUsrN1WoNgUa8uqN1Vx6WAJw1JHPhglEGGHea6QICwJOAr/6mrui/oB7pkaWKHj3z7d1IC4KWLtY47elvjbaTlkN04Kc/5LFEirorGYVbt15kAUlqGM65pk6ZBxtaO3+30LVlORZkxOh+LKL/BvbZ/iRNhItLqNyieoQj/uh/7Iv4uyH/cV/0b4WDSd3DptigWq84lJubb9t/DnZlrJazxyDCulTmKdOR7vs9gMTo+uoIrPSb8ScTtvw65+odKAlBj59dhnVp9zd7QUojOpXlL62Aw56U4oO+FALuevvMjiWeavKhJqlR7i5n9srYcrNV7ttmDw7kf/97P5zauIhxcjX+xHv4M=
+      github.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg=
+      github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl
+      github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk=
+      gitlab.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBFSMqzJeV9rUzU4kWitGjeR4PWSa29SPqJ1fVkhtj3Hw9xjLVXVYrU9QlYWrOLXBpQ6KWjbjTDTdDkoohFzgbEY=
+      gitlab.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAfuCHKVTjquxvt6CM6tdG4SLp1Btn/nOeHHE5UOzRdf
+      gitlab.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCsj2bNKTBSpIYDEGk9KxsGh3mySTRgMtXL583qmBpzeQ+jqCMRgBqB98u3z++J1sKlXHWfM9dyhSevkMwSbhoR8XIq/U0tCNyokEi/ueaBMCvbcTHhO7FcwzY92WK4Yt0aGROY5qX2UKSeOvuP4D6TPqKF1onrSzH9bx9XUf2lEdWT/ia1NEKjunUqu1xOB/StKDHMoX4/OKyIzuS0q/T1zOATthvasJFoPrAjkohTyaDUz2LN5JoH839hViyEG82yB+MjcFV5MU3N1l1QL3cVUCh93xSaua1N85qivl+siMkPGbO5xR/En4iEY6K2XPASUEMaieWVNTRCtJ4S8H+9
+      ssh.dev.azure.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC7Hr1oTWqNqOlzGJOfGJ4NakVyIzf1rXYd4d7wo6jBlkLvCA4odBlL0mDUyZ0/QUfTTqeu+tm22gOsv+VrVTMk6vwRU75gY/y9ut5Mb3bR5BV58dKXyq9A9UeB5Cakehn5Zgm6x1mKoVyf+FFn26iYqXJRgzIZZcZ5V6hrE0Qg39kZm4az48o0AUbf6Sp4SLdvnuMa2sVNwHBboS7EJkm57XQPVU3/QpyNLHbWDdzwtrlS+ez30S3AdYhLKEOxAG8weOnyrtLJAUen9mTkol8oII1edf7mWWbWVf0nBmly21+nZcmCTISQBtdcyPaEno7fFQMDD26/s0lfKob4Kw8H
+      vs-ssh.visualstudio.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC7Hr1oTWqNqOlzGJOfGJ4NakVyIzf1rXYd4d7wo6jBlkLvCA4odBlL0mDUyZ0/QUfTTqeu+tm22gOsv+VrVTMk6vwRU75gY/y9ut5Mb3bR5BV58dKXyq9A9UeB5Cakehn5Zgm6x1mKoVyf+FFn26iYqXJRgzIZZcZ5V6hrE0Qg39kZm4az48o0AUbf6Sp4SLdvnuMa2sVNwHBboS7EJkm57XQPVU3/QpyNLHbWDdzwtrlS+ez30S3AdYhLKEOxAG8weOnyrtLJAUen9mTkol8oII1edf7mWWbWVf0nBmly21+nZcmCTISQBtdcyPaEno7fFQMDD26/s0lfKob4Kw8H
+    extraHosts: ''
+
+  # Repository TLS certificates. Any values you put under `.configs.tls` are passed to argocd-tls-certs-cm ConfigMap.
+  # Ref: https://argo-cd.readthedocs.io/en/stable/operator-manual/declarative-setup/#repositories-using-self-signed-tls-certificates-or-are-signed-by-custom-ca
+  tls:
+    certificates: {}
+      # server.example.com: |
+      #   -----BEGIN CERTIFICATE-----
+      #   ...
+      #   -----END CERTIFICATE-----
+    create: true
+
+  # Argo CD sensitive data. Any values you put under `.configs.secret` are passed to argocd-secret Secret.
+  # Ref: https://argo-cd.readthedocs.io/en/stable/operator-manual/user-management/#sensitive-data-and-sso-client-secrets
+  secret:
+    createSecret: true
+    githubSecret: ""
+    gitlabSecret: ""
+    # -- Bcrypt hashed admin password
+    ## Argo expects the password in the secret to be bcrypt hashed. You can create this hash with
+    ## `htpasswd -nbBC 10 "" $ARGO_PWD | tr -d ':\n' | sed 's/$2y/$2a/'`
+    argocdServerAdminPassword: ""
+    # -- Admin password modification time. Eg. `"2006-01-02T15:04:05Z"`
+    # @default -- `""` (defaults to current time)
+    argocdServerAdminPasswordMtime: ""
+
+controller:
+  name: application-controller
+  # -- The number of application controller pods to run.
+  # Additional replicas will cause sharding of managed clusters across number of replicas.
+  ## With dynamic cluster distribution turned on, sharding of the clusters will gracefully
+  ## rebalance if the number of replica's changes or one becomes unhealthy. (alpha)
+  replicas: 1
+  # -- Enable dynamic cluster distribution (alpha)
+  # Ref: https://argo-cd.readthedocs.io/en/stable/operator-manual/dynamic-cluster-distribution
+  ## This is done using a deployment instead of a statefulSet
+  ## When replicas are added or removed, the sharding algorithm is re-run to ensure that the
+  ## clusters are distributed according to the algorithm. If the algorithm is well-balanced,
+  ## like round-robin, then the shards will be well-balanced.
+  dynamicClusterDistribution: false
+  vpa:
+    enabled: false
+    updateMode: Initial
+    containerPolicy: 
+      controlledResources: ["cpu", "memory"]
+      minAllowed:
+        cpu: 250m
+        memory: 256Mi
+      maxAllowed:
+        cpu: 1
+        memory: 2Gi
+  resources: 
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  containerSecurityContext:
+    runAsNonRoot: true
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+    seccompProfile:
+      type: RuntimeDefault
+    capabilities:
+      drop:
+      - ALL
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      selector: 
+        release: kube-prometheus-stack
+    rules:
+      enabled: true
+      namespace: "" # "monitoring"
+      selector: 
+        release: kube-prometheus-stack
+      spec: 
+        - alert: ArgoAppMissing
+          expr: |
+            absent(argocd_app_info) == 1
+          for: 15m
+          labels:
+            severity: critical
+          annotations:
+            summary: "[Argo CD] No reported applications"
+            description: >
+              Argo CD has not reported any applications data for the past 15 minutes which
+              means that it must be down or not functioning properly.  This needs to be
+              resolved for this cloud to continue to maintain state.
+        - alert: ArgoAppNotSynced
+          expr: |
+            argocd_app_info{sync_status!="Synced"} == 1
+          for: 12h
+          labels:
+            severity: warning
+          annotations:
+            summary: "[{{`{{$labels.name}}`}}] Application not synchronized"
+            description: >
+              The application [{{`{{$labels.name}}`}} has not been synchronized for over
+              12 hours which means that the state of this cloud has drifted away from the
+              state inside Git.
+
+dex:
+  enabled: true
+  name: dex-server
+  metrics:
+    enabled: false
+    serviceMonitor:
+      enabled: false
+      # namespace: "" # "monitoring"
+      selector:
+        release: kube-prometheus-stack
+  image:
+    repository: ghcr.io/dexidp/dex
+    # tag: v2.44.0
+
+  # TLS certificate configuration via Secret
+  ## Ref: https://argo-cd.readthedocs.io/en/stable/operator-manual/tls/#configuring-tls-to-argocd-dex-server
+  ## Note: Issuing certificates via cert-manager in not supported right now because it's not possible to restart Dex automatically without extra controllers.
+  certificateSecret:
+    enabled: false
+    # -- Certificate authority. Required for self-signed certificates.
+    ca: ''
+    # -- Certificate private key
+    key: ''
+    # -- Certificate data. Must contain SANs of Dex service (ie: argocd-dex-server, argocd-dex-server.argo-cd.svc)
+    crt: ''
+  resources: 
+    limits:
+      cpu: 50m
+      memory: 64Mi
+    requests:
+      cpu: 10m
+      memory: 32Mi
+  containerSecurityContext:
+    runAsNonRoot: true
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+    seccompProfile:
+      type: RuntimeDefault
+    capabilities:
+      drop:
+      - ALL
+  livenessProbe:
+    enabled: false
+  readinessProbe:
+    enabled: false
+
+## Redis-HA subchart replaces custom redis deployment when `redis-ha.enabled=true`
+# Ref: https://github.com/DandyDeveloper/charts/blob/master/charts/redis-ha/values.yaml
+redis-ha:
+  enabled: true
+  image:
+    repository: ecr-public.aws.com/docker/library/redis
+    # tag: 7.2.8-alpine
+  exporter:
+    enabled: true
+    image: ghcr.io/oliver006/redis_exporter
+    # tag: v1.75.0
+  haproxy:
+    enabled: true
+    image:
+      repository: ecr-public.aws.com/docker/library/haproxy
+    metrics:
+      enabled: true
+    containerSecurityContext:
+      readOnlyRootFilesystem: true
+
+redisSecretInit:
+  enabled: true
+  name: redis-secret-init
+  resources: 
+    limits:
+      cpu: 200m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 64Mi
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  securityContext: 
+    runAsNonRoot: true
+    runAsUser: 999
+    runAsGroup: 999
+    fsGroup: 999
+
+server:
+  name: server
+  replicas: 1
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 50
+    targetMemoryUtilizationPercentage: 70
+    behavior: 
+      scaleDown:
+       stabilizationWindowSeconds: 300
+       policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 180
+      scaleUp:
+        stabilizationWindowSeconds: 300
+        policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 60
+  resources: 
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  containerSecurityContext:
+    runAsNonRoot: true
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+    seccompProfile:
+      type: RuntimeDefault
+    capabilities:
+      drop:
+      - ALL
+  certificate:
+    # -- Deploy a Certificate resource (requires cert-manager)
+    enabled: true
+    # -- Certificate Subject Alternate Names (SANs)
+    additionalHosts: []
+    # @default -- `""` (defaults to 2160h = 90d if not specified)
+    duration: ""
+    # @default -- `""` (defaults to 360h = 15d if not specified)
+    renewBefore: ""
+    issuer:
+      group: "cert-manager.io"
+      kind: "ClusterIssuer"
+      name: "cluster-ca-issuer"
+    privateKey:
+      rotationPolicy: Never
+      # -- The private key cryptography standards (PKCS) encoding for private key. Either: `PCKS1` or `PKCS8`
+      encoding: PKCS1
+      # -- Algorithm used to generate certificate private key. One of: `RSA`, `Ed25519` or `ECDSA`
+      algorithm: RSA
+      # -- Key bit size of the private key. If algorithm is set to `Ed25519`, size is ignored.
+      size: 2048
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      selector: 
+        release: kube-prometheus-stack
+  ingress:
+    enabled: true
+    controller: generic
+    ## Ref: https://argo-cd.readthedocs.io/en/stable/operator-manual/ingress/#option-1-ssl-passthrough
+    annotations: 
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    ingressClassName: "nginx"
+    # @default -- `""` (defaults to global.domain)
+    hostname: ""
+    path: /
+    pathType: Prefix
+    # -- Enable TLS configuration for the hostname defined at `server.ingress.hostname`
+    ## TLS certificate will be retrieved from a TLS secret `argocd-server-tls`
+    ## You can create this secret via `certificate` or `certificateSecret` option
+    tls: false
+
+  # Dedicated gRPC ingress for ingress controllers that supports only single backend protocol per Ingress resource
+  # Ref: https://argo-cd.readthedocs.io/en/stable/operator-manual/ingress/#option-2-multiple-ingress-objects-and-hosts
+  ingressGrpc:
+    # -- Enable an ingress resource for the Argo CD server for dedicated [gRPC-ingress]
+    enabled: false
+    # -- Additional ingress annotations for dedicated [gRPC-ingress]
+    annotations: {}
+    # -- Additional ingress labels for dedicated [gRPC-ingress]
+    labels: {}
+    # -- Defines which ingress controller will implement the resource [gRPC-ingress]
+    ingressClassName: ""
+
+    # -- Argo CD server hostname for dedicated [gRPC-ingress]
+    # @default -- `""` (defaults to grpc.`server.ingress.hostname`)
+    hostname: ""
+
+    # -- Argo CD server ingress path for dedicated [gRPC-ingress]
+    path: /
+
+    # -- Ingress path type for dedicated [gRPC-ingress]. One of `Exact`, `Prefix` or `ImplementationSpecific`
+    pathType: Prefix
+
+    # -- Enable TLS configuration for the hostname defined at `server.ingressGrpc.hostname`
+    ## TLS certificate will be retrieved from a TLS secret with name: `argocd-server-grpc-tls`
+    tls: false
+
+    # -- The list of additional hostnames to be covered by ingress record
+    # @default -- `[]` (See [values.yaml])
+    extraHosts: []
+      # - name: grpc.argocd.example.com
+      #   path: /
+
+    # -- Additional ingress paths for dedicated [gRPC-ingress]
+    # @default -- `[]` (See [values.yaml])
+    ## Note: Supports use of custom Helm templates
+    extraPaths: []
+      # - path: /*
+      #   pathType: Prefix
+      #   backend:
+      #     service:
+      #       name: ssl-redirect
+      #       port:
+      #         name: use-annotation
+
+    # -- Additional ingress rules
+    # @default -- `[]` (See [values.yaml])
+    ## Note: Supports use of custom Helm templates
+    extraRules: []
+      # - http:
+      #     paths:
+      #     - path: /
+      #       pathType: Prefix
+      #       backend:
+      #         service:
+      #           name: '{{ include "argo-cd.server.fullname" . }}'
+      #           port:
+      #             name: '{{ .Values.server.service.servicePortHttpName }}'
+
+    # -- Additional TLS configuration for dedicated [gRPC-ingress]
+    # @default -- `[]` (See [values.yaml])
+    extraTls: []
+      # - secretName: your-certificate-name
+      #   hosts:
+      #     - argocd.example.com
+
+repoServer:
+  name: repo-server
+  replicas: 1
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 50
+    targetMemoryUtilizationPercentage: 50
+    behavior: 
+      scaleDown:
+       stabilizationWindowSeconds: 300
+       policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 180
+      scaleUp:
+        stabilizationWindowSeconds: 300
+        policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 60
+  resources: 
+    limits:
+      cpu: 100m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 128Mi
+  containerSecurityContext:
+    runAsNonRoot: true
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+    seccompProfile:
+      type: RuntimeDefault
+    capabilities:
+      drop:
+      - ALL
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      # namespace: "" # "monitoring"
+      selector: 
+        release: kube-prometheus-stack
+
+applicationSet:
+  name: applicationset-controller
+  replicas: 1
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      # namespace: ""  # monitoring
+      selector: 
+        release: kube-prometheus-stack
+  resources: 
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  containerSecurityContext:
+    runAsNonRoot: true
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+    seccompProfile:
+      type: RuntimeDefault
+    capabilities:
+      drop:
+      - ALL
+  readinessProbe:
+    enabled: true
+  livenessProbe:
+    enabled: true
+  certificate:
+    enabled: true
+    domain: "applicationset.argocd.testbed.moh"
+    additionalHosts: []
+    duration: ""
+    renewBefore: ""
+    issuer:
+      group: "cert-manager.io"
+      kind: "ClusterIssuer"
+      name: "cluster-ca-issuer"
+    privateKey:
+      rotationPolicy: Never
+      encoding: PKCS1
+      algorithm: RSA
+      size: 2048
+
+  ## Ingress for the Git Generator webhook
+  ## Ref: https://argocd-applicationset.readthedocs.io/en/master/Generators-Git/#webhook-configuration)
+  ingress:
+    enabled: true
+    annotations: {}
+    ingressClassName: "nginx"
+    hostname: "applicationset.argocd.testbed.moh"
+    path: /api/webhook
+    pathType: Prefix
+    # -- Enable TLS configuration for the hostname defined at `applicationSet.webhook.ingress.hostname`
+    ## TLS certificate will be retrieved from a TLS secret with name:`argocd-applicationset-controller-tls`
+    tls: false
+
+  allowAnyNamespace: false
+
+notifications:
+  enabled: true
+  name: notifications-controller
+  # @default -- `""` (defaults to https://`global.domain`)
+  argocdUrl: ""
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      # namespace: monitoring
+      selector: 
+        release: kube-prometheus-stack
+
+  # -- Configures notification services such as slack, email or custom webhook
+  # @default -- See [values.yaml]
+  ## For more information: https://argo-cd.readthedocs.io/en/stable/operator-manual/notifications/services/overview/
+  notifiers: {}
+    # service.slack: |
+    #   token: $slack-token
+
+  resources: 
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+  containerSecurityContext:
+    runAsNonRoot: true
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+    seccompProfile:
+      type: RuntimeDefault
+    capabilities:
+      drop:
+      - ALL
+
+  readinessProbe:
+    enabled: true
+  livenessProbe:
+    enabled: true
