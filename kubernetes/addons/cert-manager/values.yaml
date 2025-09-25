@@ -43,7 +43,7 @@ prometheus:
     interval: 60s
     scrapeTimeout: 30s
     labels:
-      release: prometheus-stack
+      release: kube-prometheus-stack
   podmonitor:
     enabled: false
     # namespace: cert-manager
@@ -52,7 +52,7 @@ prometheus:
     interval: 60s
     scrapeTimeout: 30s
     labels:
-      release: prometheus-stack
+      release: kube-prometheus-stack
 
 webhook:
   replicaCount: 2

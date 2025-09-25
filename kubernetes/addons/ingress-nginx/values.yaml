@@ -71,12 +71,12 @@ controller:
     serviceMonitor:
       enabled: true
       additionalLabels:
-        release: prometheus-stack
+        release: kube-prometheus-stack
       namespace: ""
     prometheusRule:
       enabled: true
       additionalLabels:
-        release: prometheus-stack
+        release: kube-prometheus-stack
       namespace: ""
       rules:
         - alert: NGINXConfigFailed
