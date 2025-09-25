@@ -59,7 +59,7 @@ csi:
   cephFSKernelMountOptions:
   enableMetadata: false
   provisionerReplicas: 3
-  clusterName: testbed
+  clusterName: rook-ceph
 
   csiRBDProvisionerResource: |
     - name : csi-provisioner
