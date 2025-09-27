@@ -1,0 +1,371 @@
+global:
+  enabled: true
+  namespace: ""
+  imagePullSecrets: []
+  tlsDisable: false
+  openshift: false
+  # Create PodSecurityPolicy for pods
+  psp:
+    enable: false
+    annotations: |
+      seccomp.security.alpha.kubernetes.io/allowedProfileNames: docker/default,runtime/default
+      apparmor.security.beta.kubernetes.io/allowedProfileNames: runtime/default
+      seccomp.security.alpha.kubernetes.io/defaultProfileName:  runtime/default
+      apparmor.security.beta.kubernetes.io/defaultProfileName:  runtime/default
+  serverTelemetry:
+    prometheusOperator: true
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 256Mi
+      cpu: 250m
+
+injector:
+  enabled: "-"
+  replicas: 1
+  metrics:
+    enabled: true
+  image:
+    repository: "hashicorp/vault-k8s"
+    # tag: "1.7.0"
+    pullPolicy: IfNotPresent
+  agentImage:
+    repository: "hashicorp/vault"
+    # tag: "1.20.4"
+  agentDefaults:
+    cpuLimit: "500m"
+    cpuRequest: "250m"
+    memLimit: "128Mi"
+    memRequest: "64Mi"
+    # ephemeralLimit: "128Mi"
+    # ephemeralRequest: "64Mi"
+
+  # Supported log levels include: trace, debug, info, warn, error
+  logLevel: "info"
+  # Configures the log format of the injector. Supported log formats: "standard", "json".
+  logFormat: "standard"
+
+  # Security context for the pod template and the injector container
+  # The default pod securityContext is:
+  #   runAsNonRoot: true
+  #   runAsGroup: {{ .Values.injector.gid | default 1000 }}
+  #   runAsUser: {{ .Values.injector.uid | default 100 }}
+  #   fsGroup: {{ .Values.injector.gid | default 1000 }}
+  # and for container is
+  #    allowPrivilegeEscalation: false
+  #    capabilities:
+  #      drop:
+  #        - ALL
+  securityContext:
+    pod:
+      runAsNonRoot: true
+      runAsGroup: 1000
+      runAsUser: 100
+      fsGroup: 1000
+      seccompProfile:
+        type: RuntimeDefault
+
+    container:
+      runAsNonRoot: true
+      allowPrivilegeEscalation: false
+      seccompProfile:
+        type: RuntimeDefault
+      capabilities:
+        drop:
+          - ALL
+
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 256Mi
+      cpu: 250m
+
+server:
+  enabled: "-"
+  image:
+    repository: "hashicorp/vault"
+    # tag: "1.20.4"
+    pullPolicy: IfNotPresent
+  updateStrategyType: "OnDelete"
+
+  # Supported log levels include: trace, debug, info, warn, error
+  logLevel: ""
+  # Supported log formats include: standard, json
+  logFormat: ""
+
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 250m
+    limits:
+      memory: 256Mi
+      cpu: 250m
+
+  ingress:
+    enabled: true
+    annotations:
+      nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    ingressClassName: "nginx"
+    pathType: Prefix
+    activeService: true
+    hosts:
+      - host: vault.testbed.moh
+        paths: []
+    extraPaths:
+    - path: /ui
+      pathType: Prefix
+      backend:
+        service:
+          name: vault-ui
+          port:
+            number: 8200
+    tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
+
+  readinessProbe:
+    enabled: true
+    path: "/v1/sys/health?standbyok=true&sealedcode=204&uninitcode=204"
+  livenessProbe:
+    enabled: true
+    path: "/v1/sys/health?standbyok=true"
+    initialDelaySeconds: 120
+
+  extraEnvironmentVars:
+    VAULT_CACERT: /vault/userconfig/vault-server-tls/ca.crt
+    VAULT_TLSCERT: /vault/userconfig/vault-server-tls/tls.crt
+    VAULT_TLSKEY: /vault/userconfig/vault-server-tls/tls.key
+
+  volumes:
+    - name: userconfig-vault-server-tls
+      secret:
+        defaultMode: 420
+        secretName: vault-server-tls # Matches the ${SECRET_NAME} from README.md
+
+  volumeMounts:
+    - mountPath: /vault/userconfig/vault-server-tls
+      name: userconfig-vault-server-tls
+      readOnly: true
+
+  dataStorage:
+    enabled: true
+    size: 5Gi
+    mountPath: "/vault/data"
+    storageClass: ceph-block
+    accessMode: ReadWriteOnce
+
+  auditStorage:
+    enabled: true
+    size: 2Gi
+    mountPath: "/vault/audit"
+    storageClass: ceph-block
+    accessMode: ReadWriteOnce
+
+  standalone:
+    enabled: "false"
+
+  ha:
+    enabled: true
+    replicas: 3
+    raft:
+      enabled: true
+      setNodeId: true
+      config: |
+        ui = true
+        cluster_name = "vault-integrated-storage"
+
+        listener "tcp" {
+          tls_disable = 0
+          address = "[::]:8200"
+          cluster_address = "[::]:8201"
+          tls_client_ca_file = "/vault/userconfig/vault-server-tls/ca.crt"
+          tls_cert_file = "/vault/userconfig/vault-server-tls/tls.crt"
+          tls_key_file  = "/vault/userconfig/vault-server-tls/tls.key"
+          telemetry {
+            unauthenticated_metrics_access = "true"
+          }
+        }
+
+        storage "raft" {
+          path = "/vault/data"
+          retry_join {
+            leader_api_addr = "https://vault-active:8200"
+            leader_ca_cert_file = "/vault/userconfig/vault-server-tls/ca.crt"
+            leader_client_cert_file = "/vault/userconfig/vault-server-tls/tls.crt"
+            leader_client_key_file = "/vault/userconfig/vault-server-tls/tls.key"
+          }
+        }
+
+        telemetry {
+          prometheus_retention_time = "1h"
+          disable_hostname = true
+        }
+
+        disable_mlock = false
+        service_registration "kubernetes" {}
+
+  statefulSet:
+    # Set the pod and container security contexts.
+    # If not set, these will default to, and for *not* OpenShift:
+    # pod:
+    #   runAsNonRoot: true
+    #   runAsGroup: {{ .Values.server.gid | default 1000 }}
+    #   runAsUser: {{ .Values.server.uid | default 100 }}
+    #   fsGroup: {{ .Values.server.gid | default 1000 }}
+    # container:
+    #   allowPrivilegeEscalation: false
+    #
+    # If not set, these will default to, and for OpenShift:
+    # pod: {}
+    # container: {}
+    securityContext:
+      pod:
+        runAsNonRoot: true
+        runAsGroup: 1000
+        runAsUser: 100
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+
+      container:
+        runAsNonRoot: true
+        allowPrivilegeEscalation: false
+        seccompProfile:
+          type: RuntimeDefault
+        capabilities:
+          drop:
+            - ALL
+
+ui:
+  enabled: true
+  publishNotReadyAddresses: true
+  activeVaultPodOnly: true
+  serviceType: "ClusterIP"
+  externalPort: 8200
+  targetPort: 8200
+
+csi:
+  enabled: false
+  image:
+    repository: "hashicorp/vault-csi-provider"
+    # tag: "1.5.1"
+    pullPolicy: IfNotPresent
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 50m
+      memory: 128Mi
+
+  daemonSet:
+    updateStrategy:
+      type: RollingUpdate
+      maxUnavailable: ""
+    providersDir: "/var/run/secrets-store-csi-providers"
+    kubeletRootDir: "/var/lib/kubelet"
+    # Security context for the pod template and container in the csi provider
+    # daemonSet. For OpenShift, the container securityContext defaults to
+    # `privileged: true`.
+    securityContext:
+      pod:
+        runAsNonRoot: true
+        runAsGroup: 1000
+        runAsUser: 100
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+
+      container:
+        runAsNonRoot: true
+        allowPrivilegeEscalation: false
+        seccompProfile:
+          type: RuntimeDefault
+        capabilities:
+          drop:
+            - ALL
+
+
+  agent:
+    enabled: true
+    image:
+      repository: "hashicorp/vault"
+      # tag: "1.20.4"
+      pullPolicy: IfNotPresent
+
+    logFormat: standard
+    logLevel: info
+
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 250m
+      limits:
+        memory: 256Mi
+        cpu: 250m
+
+    securityContext:
+      container:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
+        readOnlyRootFilesystem: true
+        runAsNonRoot: true
+        runAsUser: 100
+        runAsGroup: 1000
+
+  logLevel: "info"
+
+# For more information see:
+# https://developer.hashicorp.com/vault/docs/configuration/telemetry
+# https://developer.hashicorp.com/vault/docs/internals/telemetry
+serverTelemetry:
+  # Enable support for the Prometheus Operator. If authorization is not set for authenticating
+  # to Vault's metrics endpoint, the following Vault server `telemetry{}` config must be included
+  # in the `listener "tcp"{}` stanza
+  #  telemetry {
+  #    unauthenticated_metrics_access = "true"
+  #  }
+  #
+  # See the `standalone.config` for a more complete example of this.
+  #
+  # In addition, a top level `telemetry{}` stanza must also be included in the Vault configuration:
+  #
+  # example:
+  #  telemetry {
+  #    prometheus_retention_time = "30s"
+  #    disable_hostname = true
+  #  }
+  #
+  # Configuration for monitoring the Vault server.
+  serviceMonitor:
+    enabled: true
+    selectors:
+      release: kube-prometheus-stack
+  prometheusRules:
+      enabled: true
+      selectors:
+        release: kube-prometheus-stack
+      rules:
+        - alert: vault-HighResponseTime
+          annotations:
+            message: The response time of Vault is over 500ms on average over the last 5 minutes.
+          expr: vault_core_handle_request{quantile="0.5", namespace="mynamespace"} > 500
+          for: 5m
+          labels:
+            severity: warning
+        - alert: vault-HighResponseTime
+          annotations:
+            message: The response time of Vault is over 1s on average over the last 5 minutes.
+          expr: vault_core_handle_request{quantile="0.5", namespace="mynamespace"} > 1000
+          for: 5m
+          labels:
+            severity: critical

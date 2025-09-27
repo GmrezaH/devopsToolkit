@@ -16,8 +16,8 @@ This guide outlines the steps to deploy HashiCorp Vault in a Kubernetes cluster 
 
 | Component        | Version |
 | ---------------- | ------- |
-| HashiCorp Vault  | 1.18.1  |
-| Vault Helm Chart | 0.29.1  |
+| HashiCorp Vault  | 1.20.4  |
+| Vault Helm Chart | 0.31.0  |
 | Kubernetes       | 1.31.x  |
 | Helm             | 3.16.x  |
 | OpenSSL          | 3.0.x   |
@@ -46,7 +46,11 @@ This guide outlines the steps to deploy HashiCorp Vault in a Kubernetes cluster 
    helm search repo hashicorp/vault
    ```
 
-## Create Vault certificate using kubernetes CA
+## Create Vault certificate
+
+To enable TLS for secure communication in the `Vault` cluster, a certificate is required. This section provides two options for creating the Vault certificate: `using the Kubernetes CA` or `using Cert-Manager with a ClusterIssuer`.
+
+### Option 1: Using Kubernetes CA
 
 1. Export the working directory location and the naming variables.
 
@@ -69,6 +73,9 @@ This guide outlines the steps to deploy HashiCorp Vault in a Kubernetes cluster 
 
    # K8S_CLUSTER_NAME is the domain name of the kubernetes cluster
    export K8S_CLUSTER_NAME="cluster.local"
+
+   # VAULT_INGRESS_HOST is the domain name of vault ingress
+   export VAULT_INGRESS_HOST="vault.testbed.moh"
    ```
 
 1. Create a working directory.
@@ -83,12 +90,12 @@ This guide outlines the steps to deploy HashiCorp Vault in a Kubernetes cluster 
    openssl genrsa -out ${WORKDIR}/vault.key 2048
    ```
 
-### Create the Certificate Signing Request (CSR)
+#### Create the Certificate Signing Request (CSR)
 
 1. Create the CSR configuration file.
 
    ```bash
-   cat <<EOF >${WORKDIR}/csr.conf
+   cat <<EOF > ${WORKDIR}/csr.conf
    [req]
    default_bits = 2048
    prompt = no
@@ -114,6 +121,7 @@ This guide outlines the steps to deploy HashiCorp Vault in a Kubernetes cluster 
    DNS.7 = vault-active.${NAMESPACE}.svc
    DNS.8 = vault-active.${NAMESPACE}.svc.${K8S_CLUSTER_NAME}
    DNS.9 = *.${NAMESPACE}
+   DNS.10 = ${VAULT_INGRESS_HOST}
    IP.1 = 127.0.0.1
    EOF
    ```
@@ -127,7 +135,7 @@ This guide outlines the steps to deploy HashiCorp Vault in a Kubernetes cluster 
                -config ${WORKDIR}/csr.conf
    ```
 
-### Issue the certificate
+#### Issue the certificate
 
 1. Create the CSR YAML file to send it to Kubernetes.
 
@@ -141,7 +149,7 @@ This guide outlines the steps to deploy HashiCorp Vault in a Kubernetes cluster 
      signerName: kubernetes.io/kubelet-serving
      groups:
      - system:authenticated
-     request: $(base64 ${WORKDIR}/server.csr | tr -d '\n')
+     request: $(base64 -w0 ${WORKDIR}/server.csr)
      signerName: kubernetes.io/kubelet-serving
      usages:
      - digital signature
@@ -168,7 +176,7 @@ This guide outlines the steps to deploy HashiCorp Vault in a Kubernetes cluster 
    kubectl get csr ${CSR_NAME}
    ```
 
-## Store key, cert, and kubernetes CA into kubernetes secrets store
+#### Store key, cert, and kubernetes CA into kubernetes secrets store
 
 1. Retrieve the certificate.
 
@@ -179,7 +187,7 @@ This guide outlines the steps to deploy HashiCorp Vault in a Kubernetes cluster 
 1. Retrieve Kubernetes CA certificate.
 
    ```bash
-   kubectl get cm -o jsonpath='{.items[0].data.ca\.crt}'> ${WORKDIR}/vault.ca
+   kubectl get cm kube-root-ca.crt -o jsonpath='{.data.ca\.crt}' > ${WORKDIR}/vault.ca
 
    # or
 
@@ -202,10 +210,65 @@ This guide outlines the steps to deploy HashiCorp Vault in a Kubernetes cluster 
    ```bash
    kubectl create secret generic ${SECRET_NAME} \
        --namespace ${NAMESPACE} \
-       --from-file=vault.key=${WORKDIR}/vault.key \
-       --from-file=vault.crt=${WORKDIR}/vault.crt \
-       --from-file=vault.ca=${WORKDIR}/vault.ca
+       --from-file=tls.key=${WORKDIR}/vault.key \
+       --from-file=tls.crt=${WORKDIR}/vault.crt \
+       --from-file=ca.crt=${WORKDIR}/vault.ca
    ```
+
+### Option 2: Using Cert-manager
+
+Assuming `cert-manager` is installed in your Kubernetes cluster and a ClusterIssuer (e.g., named `cluster-ca-issuer`) is configured, you can create a Certificate resource to generate the Vault TLS certificate automatically.
+
+1. Apply the following Certificate resource YAML to your cluster. This will request a certificate from the Cert-Manager ClusterIssuer and store it in a Secret named `vault-server-tls`.
+
+   ```bash
+   cat <<EOF | kubectl apply -f -
+   apiVersion: cert-manager.io/v1
+   kind: Certificate
+   metadata:
+     name: vault-certificate
+     namespace: ${NAMESPACE}
+   spec:
+     secretName: ${SECRET_NAME}
+     issuerRef:
+       name: cluster-ca-issuer
+       kind: ClusterIssuer
+       group: cert-manager.io
+     commonName: system:node:*.vault.svc.cluster.local
+     dnsNames:
+     - "*.${SERVICE}"
+     - "*.${SERVICE}.${NAMESPACE}"
+     - "*.${SERVICE}.${NAMESPACE}.svc"
+     - "*.${SERVICE}.${NAMESPACE}.svc.${K8S_CLUSTER_NAME}"
+     - vault-active
+     - vault-active.${NAMESPACE}
+     - vault-active.${NAMESPACE}.svc
+     - vault-active.${NAMESPACE}.svc.${K8S_CLUSTER_NAME}
+     - "*.${NAMESPACE}"
+     - ${VAULT_INGRESS_HOST}
+     ipAddresses:
+     - 127.0.0.1
+     usages:
+     - digital signature
+     - key encipherment
+     - server auth
+     - client auth
+     privateKey:
+       algorithm: RSA
+       size: 2048
+     encodeUsagesInRequest: true
+     duration: 2160h # 90 days
+     renewBefore: 360h # 15 days
+   EOF
+   ```
+
+1. Verify the Certificate resource status:
+
+   ```bash
+   kubectl get certificate vault-certificate -n vault -o wide
+   ```
+
+1. Once issued, the certificate and key will be stored in the secret `vault-server-tls` in the `vault` namespace. Cert-Manager will handle renewal automatically based on the specified `renewBefore` period.
 
 ## Deploy the vault cluster via Helm with overrides
 
@@ -244,9 +307,9 @@ Wait for a few minutes and initialize and unseal `vault-0` pod.
 1. Create variables to capture the Vault unseal key.
 
    ```bash
-   VAULT_UNSEAL_KEY_1=$(jq -r ".unseal_keys_b64[0]" ${WORKDIR}/    cluster-keys.json)
-   VAULT_UNSEAL_KEY_2=$(jq -r ".unseal_keys_b64[1]" ${WORKDIR}/    cluster-keys.json)
-   VAULT_UNSEAL_KEY_3=$(jq -r ".unseal_keys_b64[2]" ${WORKDIR}/    cluster-keys.json)
+   VAULT_UNSEAL_KEY_1=$(jq -r ".unseal_keys_b64[0]" ${WORKDIR}/cluster-keys.json)
+   VAULT_UNSEAL_KEY_2=$(jq -r ".unseal_keys_b64[1]" ${WORKDIR}/cluster-keys.json)
+   VAULT_UNSEAL_KEY_3=$(jq -r ".unseal_keys_b64[2]" ${WORKDIR}/cluster-keys.json)
    ```
 
    After initialization, Vault is configured to know where and how to access the storage, but does not know how to decrypt any of it. `Unsealing` is the process of constructing the root key necessary to read the decryption key to decrypt the data, allowing access to the Vault.
@@ -272,7 +335,7 @@ Wait for a few minutes and initialize and unseal `vault-0` pod.
 1. Join the `vault-1` pod to the Raft cluster.
 
    ```sh
-   vault operator raft join -address=https://vault-1.vault-internal:8200 -leader-ca-cert="$(cat /vault/userconfig/vault-server-tls/vault.ca)" -leader-client-cert="$(cat /vault/userconfig/vault-server-tls/vault.crt)" -leader-client-key="$(cat /vault/userconfig/vault-server-tls/vault.key)" https://vault-0.vault-internal:8200
+   vault operator raft join -address=https://vault-1.vault-internal:8200 -leader-ca-cert="$(cat /vault/userconfig/vault-server-tls/ca.crt)" -leader-client-cert="$(cat /vault/userconfig/vault-server-tls/tls.crt)" -leader-client-key="$(cat /vault/userconfig/vault-server-tls/tls.key)" https://vault-0.vault-internal:8200
    ```
 
 1. Exit the `vault-1` pod
@@ -300,7 +363,7 @@ Wait for a few minutes and initialize and unseal `vault-0` pod.
 1. Join the `vault-2` pod to the Raft cluster.
 
    ```sh
-   vault operator raft join -address=https://vault-2.vault-internal:8200 -leader-ca-cert="$(cat /vault/userconfig/vault-server-tls/vault.ca)" -leader-client-cert="$(cat /vault/userconfig/vault-server-tls/vault.crt)" -leader-client-key="$(cat /vault/userconfig/vault-server-tls/vault.key)" https://vault-0.vault-internal:8200
+   vault operator raft join -address=https://vault-2.vault-internal:8200 -leader-ca-cert="$(cat /vault/userconfig/vault-server-tls/ca.crt)" -leader-client-cert="$(cat /vault/userconfig/vault-server-tls/tls.crt)" -leader-client-key="$(cat /vault/userconfig/vault-server-tls/tls.key)" https://vault-0.vault-internal:8200
    ```
 
 1. Exit the `vault-2` pod
