@@ -411,6 +411,12 @@ Login to vault and confirm everything is working
 > [!IMPORTANT]
 > Store Unseal keys and Root key **SECURELY**
 
+## Monitoring
+
+The following Grafana dashboard is available:
+
+- [Hashicorp Vault (ID: 12904)](https://grafana.com/grafana/dashboards/12904-hashicorp-vault/)
+
 ## Test
 
 ### Create a secret
