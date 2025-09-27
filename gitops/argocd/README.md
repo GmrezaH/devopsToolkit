@@ -53,6 +53,14 @@ This command deploys `Argocd`. Verify the deployment:
 kubectl get pods -n argocd
 ```
 
+## Monitoring
+
+The following Grafana dashboards are available:
+
+- [ArgoCD (ID: 14584)](https://grafana.com/grafana/dashboards/14584-argocd/)
+
+The dashboard JSON files are also available on [GitHub here `examples/dashboard.json`](https://github.com/argoproj/argo-cd/blob/master/examples/dashboard.json).
+
 ## Resources
 
 - [argo-helm repository](https://github.com/argoproj/argo-helm/tree/main)
