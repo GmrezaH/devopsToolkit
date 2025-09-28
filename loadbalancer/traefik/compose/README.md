@@ -1,5 +1,9 @@
 # Traefik Setup
 
+<div align="center">
+  <img src="../../../images/traefik.png" alt="Hashicorp Vault logo" />
+</div>
+
 [Traefik](https://traefik.io/) is an open-source edge router that functions as a reverse proxy and load balancer. It dynamically configures routes based on service discovery and supports Docker container integration.
 
 ## Preparation
