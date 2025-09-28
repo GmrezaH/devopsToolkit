@@ -50,7 +50,7 @@ This guide outlines the steps to deploy HashiCorp Vault in a Kubernetes cluster 
 
 To enable TLS for secure communication in the `Vault` cluster, a certificate is required. This section provides two options for creating the Vault certificate: `using the Kubernetes CA` or `using Cert-Manager with a ClusterIssuer`.
 
-### Option 1: Using Kubernetes CA
+### **Option 1**: Using Kubernetes CA
 
 1. Export the working directory location and the naming variables.
 
@@ -215,7 +215,7 @@ To enable TLS for secure communication in the `Vault` cluster, a certificate is 
        --from-file=ca.crt=${WORKDIR}/vault.ca
    ```
 
-### Option 2: Using Cert-manager
+### **Option 2**: Using Cert-manager
 
 Assuming `cert-manager` is installed in your Kubernetes cluster and a ClusterIssuer (e.g., named `cluster-ca-issuer`) is configured, you can create a Certificate resource to generate the Vault TLS certificate automatically.
 
