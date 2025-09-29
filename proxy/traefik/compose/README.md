@@ -11,7 +11,7 @@
 Create a directory for dynamic configuration and add a TLS configuration file:
 
 ```bash
-mkdir -p dynamic
+mkdir -p dynamic certs
 cat > dynamic/tls.yml << EOF
 tls:
   certificates:
@@ -27,7 +27,6 @@ EOF
 Generate a self-signed certificate:
 
 ```bash
-mkdir -p certs
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
   -keyout certs/tls.key -out certs/tls.crt \
   -subj "/CN=*.testbed.moh"
