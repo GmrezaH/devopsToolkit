@@ -9,7 +9,7 @@ services:
       - "--api.dashboard=true"
       - "--api.insecure=true"
       - "--providers.docker=true"
-      - "--providers.docker.network=web"
+      - "--providers.docker.network=proxy"
       - "--providers.docker.exposedbydefault=false"
       - "--providers.file.directory=/etc/traefik/dynamic"
       - "--entrypoints.web.address=:80"
@@ -42,11 +42,8 @@ services:
       - "traefik.http.services.dashboard.loadBalancer.server.port=8080"
 
 networks:
-  web:
-    name: web
-    external: true
-  internal:
-    name: internal
+  proxy:
+    name: proxy
     external: true
 
 volumes:
