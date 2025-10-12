@@ -7,14 +7,14 @@ networks:
     external: true
 
 volumes:
+  gitlab_config:
+    name: gitlab_config
   gitlab_data:
     name: gitlab_data
   gitlab_log:
     name: gitlab_log
   gitlab_backups:
     name: gitlab_backups
-  gitlab_config:
-    name: gitlab_config
 
 services:
   gitlab:
@@ -64,12 +64,20 @@ services:
 
         # Gitlab Nginx config
         nginx['enable'] = true
-        nginx['client_max_body_size'] = '250m'
+        nginx['client_max_body_size'] = '1024m'
         nginx['redirect_http_to_https'] = false
         nginx['gzip_enabled'] = true
         nginx['listen_port'] = 80
         nginx['listen_https'] = false
+        # nginx['proxy_cache'] = 'gitlab'
         nginx['proxy_protocol'] = false
+        nginx['proxy_set_headers'] = {
+          "Host" => "$$http_host",
+          "X-Real-IP" => "$$remote_addr",
+          "X-Forwarded-For" => "$$proxy_add_x_forwarded_for",
+          "X-Forwarded-Proto" => "https",
+          "X-Forwarded-Ssl" => "on"
+        }
 
         # GitLab email server configuration
         gitlab_rails['smtp_enable'] = true
@@ -124,12 +132,24 @@ services:
           "X-Forwarded-Ssl" => "on"
         }
 
+        # S3 storage configuration for Registry Backend
+        registry['storage'] = {
+            's3' => {
+              'region' => 'us-east-1',
+              'accesskey' => '${MINIO_ACCESS_KEY}',
+              'secretkey' => '${MINIO_SECRET_KEY}',
+              'bucket' => '${MINIO_REGISTRY_BUCKET_NAME}',
+              'regionendpoint' => '${MINIO_ENDPOINT_URL}'
+            }
+          }
+
         # Gitlab disable unused services
         node_exporter['enable'] = false
         redis_exporter['enable'] = false
         postgres_exporter['enable'] = false
         pgbouncer_exporter['enable'] = false
         gitlab_exporter['enable'] = false
+        prometheus_monitoring['enable'] = false
         letsencrypt['enable'] = false
         prometheus['enable'] = false
         monitoring_role['enable'] = false
