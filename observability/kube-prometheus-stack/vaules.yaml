@@ -143,6 +143,7 @@ grafana:
       searchNamespace: ALL
       provider:
         allowUiUpdates: true
+        folder: "Kubernetes Mixin"
         foldersFromFilesStructure: true
     datasources:
       enabled: true
