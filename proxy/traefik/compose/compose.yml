@@ -1,3 +1,12 @@
+networks:
+  proxy:
+    name: proxy
+    external: true
+
+# volumes:
+#   traefik_data:
+#     name: traefik_data
+#     external: false
 services:
   traefik:
     image: traefik:${image_tag}
@@ -28,7 +37,7 @@ services:
       - "./dynamic:/etc/traefik/dynamic:ro"
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
     networks:
-      - web
+      - proxy
     labels:
       - "traefik.enable=true"
       - "traefik.http.middlewares.web-auth.basicauth.users=${web_auth_user}:${web_auth_pass}"
@@ -40,12 +49,3 @@ services:
       - "traefik.http.routers.dashboard.tls=true"
       #      - "traefik.http.routers.dashboard.tls.certresolver=myresolver"
       - "traefik.http.services.dashboard.loadBalancer.server.port=8080"
-
-networks:
-  proxy:
-    name: proxy
-    external: true
-# volumes:
-#   traefik_data:
-#     name: traefik_data
-#     external: false
