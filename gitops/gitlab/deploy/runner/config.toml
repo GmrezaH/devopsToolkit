@@ -29,4 +29,4 @@ shutdown_timeout = 0
     volumes = ["/cache","/var/run/docker.sock:/var/run/docker.sock","/opt/services/runner/certs/ca.crt:/etc/gitlab-runner/certs/ca.crt:ro"]
     shm_size = 0
     network_mtu = 0
-    extra_hosts = ["gitlab.testbed.moh:192.168.59.107", "objectstore.ceph.testbed.moh:192.168.59.122", "vip.testbed.moh:192.168.59.122"]
+    extra_hosts = ["gitlab.testbed.moh:192.168.59.107"]
