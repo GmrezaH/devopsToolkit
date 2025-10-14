@@ -1,0 +1,27 @@
+networks:
+  proxy:
+    name: proxy
+    external: true
+  app:
+    name: app
+    external: true
+
+volumes:
+  runner_data:
+    name: runner_data
+
+services:
+  runner:
+    image: gitlab/gitlab-runner:${IMAGE_TAG}
+    restart: ${RESTART_POLICY}
+    container_name: gitlab-runner
+    hostname: gitlab-runner
+    extra_hosts:
+      - "gitlab.testbed.moh:192.168.59.107"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "runner_data:/etc/gitlab-runner"
+      - "./certs/:/etc/gitlab-runner/certs/"
+    networks:
+      - proxy
+      - app
