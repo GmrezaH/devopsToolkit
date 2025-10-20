@@ -1,0 +1,59 @@
+#!/bin/bash
+## variable sections ###################################
+DATA_DIR=/var/lib/docker/volumes/gitlab_config/
+BACKUP_DIR=/opt/BACKUP
+NOW=$(date "+%F_%H-%M-%S")
+BACKUP_NAME=gitlab_config_backup_${NOW}
+ENCRYPT_PASS={{ gitlab_backup_encryption_pass }}
+
+S3_ENDPOINT={{ s3_api_endpoint }}
+S3_ACCESS_KEY={{ s3_gitlab_backup_access_key }}
+S3_SECRET_KEY={{ s3_gitlab_backup_secret_key }}
+S3_BUCKET={{ s3_gitlab_backup_bucket }}
+MINIO_ALIAS=minio_gitlab_backup
+#######################################################
+
+# create ${BACKUP_DIR} if not exist
+[[ -d ${BACKUP_DIR} ]] || mkdir -p ${BACKUP_DIR}
+
+# create and move backup file
+cd ${DATA_DIR}
+tar -czf ${BACKUP_NAME}.tar.gz _data/*
+mv ${BACKUP_NAME}.tar.gz ${BACKUP_DIR}
+
+# encrypt backup file
+cd ${BACKUP_DIR}
+gpg --symmetric \
+    --cipher-algo AES256 \
+    --batch --yes \
+    --passphrase ${ENCRYPT_PASS} \
+    ${BACKUP_NAME}.tar.gz
+
+# change backup file attribute
+chattr +i ${BACKUP_NAME}.tar.gz
+
+# setup s5cmd if it does not exists
+PATH=/usr/local/bin:$PATH
+which s5cmd || (VER=$(curl -s https://api.github.com/repos/peak/s5cmd/releases/latest|grep tag_name|cut -d '"' -f 4|sed 's/v//') \
+               && curl -Lo s5cmd_${VER}_Linux-64bit.tar.gz  https://github.com/peak/s5cmd/releases/download/v${VER}/s5cmd_${VER}_Linux-64bit.tar.gz \
+               && tar xvf s5cmd_${VER}_Linux-64bit.tar.gz \
+               && rm -f s5cmd_${VER}_Linux-64bit.tar.gz CHANGELOG.md README.md LICENSE\
+               && chmod +x s5cmd \
+               && mv s5cmd /usr/local/bin/)
+
+# send encrypted file to object storage
+cd ${BACKUP_DIR}
+s5cmd --profile gitlab-backup --endpoint-url $S3_ENDPOINT cp ${BACKUP_NAME}.tar.gz.gpg s3://$S3_BUCKET
+rm ${BACKUP_NAME}.tar.gz.gpg 
+
+## check and setup mc information
+#which mc || curl https://dl.min.io/client/mc/release/linux-amd64/mc \
+#                                        -o /usr/local/bin/mc \
+#                                        && chmod +x /usr/local/bin/mc
+#
+#mc alias list | grep ${MINIO_ALIAS} || mc alias set ${MINIO_ALIAS} ${S3_ENDPOINT} ${S3_ACCESS_KEY} ${S3_SECRET_KEY}
+#
+#cd ${BACKUP_DIR}
+#mc put ${BACKUP_NAME}.tar.gz.gpg ${MINIO_ALIAS}/${S3_BUCKET}
+#rm ${BACKUP_NAME}.tar.gz.gpg
+#mc ls ${MINIO_ALIAS}/${S3_BUCKET}/${BACKUP_NAME}.tar.gz.gpg

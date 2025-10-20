@@ -1,0 +1,47 @@
+---
+- name: Check realms config
+  uri:
+    url: "{{ nexus_main_url }}/service/rest/v1/security/realms/active"
+    user: "{{ nexus_username }}"
+    password: "{{ nexus_password }}"
+    method: GET
+    force_basic_auth: yes
+    status_code: 200
+    validate_certs: false
+  register: realms_check_response
+  tags:
+    - setup_nexus
+    - config_nexus
+    - realms_config
+
+- name: Debug DockerToken if found
+  debug:
+    msg: "{{ realms_check_response.json }}"
+  when: "'DockerToken' not in realms_check_response.json"
+  tags:
+    - setup_nexus
+    - config_nexus
+    - realms_config
+
+- name: change realms config
+  uri:
+    url: "{{ nexus_main_url }}/service/rest/v1/security/realms/active"
+    user: "{{ nexus_username }}"
+    password: "{{ nexus_password }}"
+    method: PUT
+    force_basic_auth: yes
+    status_code: 204
+    validate_certs: false
+    body_format: json
+    headers:
+      Content-Type: "application/json"
+    body: >-
+      [
+        "NexusAuthenticatingRealm",
+        "DockerToken"
+      ]
+  when: "'DockerToken' not in realms_check_response.json"
+  tags:
+    - setup_nexus
+    - config_nexus
+    - realms_config

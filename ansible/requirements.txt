@@ -1,0 +1,12 @@
+ansible-core
+jmespath
+jsonschema
+netaddr
+molecule
+molecule-plugins[docker]
+docker
+aar-doc
+ssh-keygen
+cryptography
+paramiko
+pyvmomi

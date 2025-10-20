@@ -1,0 +1,48 @@
+---
+docker_dependencies:
+  - acl
+  #- iproute2
+  - python3-pip
+  - python3-docker
+  - python3-requests
+  - python3-urllib3
+  - net-tools
+
+docker_repo:
+  channel:
+    stable_enabled: true
+    test_enabled: false
+    nightly_enabled: false
+  base_url: "https://download.docker.com/linux/centos/$releasever/$basearch"
+  gpg_key: "https://download.docker.com/linux/centos/gpg"
+  gpg_check: true
+
+docker_packages:
+  - containerd.io
+  - docker-ce
+  - docker-ce-cli
+  - docker-buildx-plugin
+  - docker-compose-plugin
+  - docker-ce-rootless-extras
+
+docker_config:
+  proxy:
+    enabled: false
+    http_proxy_url: "http://proxy.example.com:3128"
+    https_proxy_url: "https://proxy.example.com:3129"
+    no_proxy_url: "*.test.example.com,.example.org,127.0.0.0/8"
+  registry_mirror:
+    enabled: false
+    urls: "https://docker.example.com"
+  insecure_registry:
+    enabled: true
+    urls: "192.168.59.16:8083"
+  logging:
+    enabled: true
+    labels: "{{ inventory_hostname }}"
+    max_file: 5
+    max_size: 100M
+  experimental:
+    enabled: true
+  live_restore:
+    enabled: true

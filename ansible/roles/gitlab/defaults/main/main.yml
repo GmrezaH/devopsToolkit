@@ -1,0 +1,13 @@
+---
+service_dir: "{{ project_dir }}/gitlab"
+backups_dir: "{{ project_dir }}/backup"
+
+gitlab_image_tag: 18.3.3-ce.0
+
+# gitlab domain
+gitlab_main_domain: "gitlab.{{ main_domain }}"
+gitlab_registry_domain: "registry.{{ main_domain }}"
+
+# minio information
+s3_api_endpoint: http://objectstore.ceph.testbed.moh
+s3_gitlab_backup_bucket: gitlab-backup

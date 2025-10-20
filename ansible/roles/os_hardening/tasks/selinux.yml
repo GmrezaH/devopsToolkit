@@ -1,0 +1,7 @@
+---
+- name: Configure selinux | selinux-01
+  ansible.posix.selinux:
+    policy: "{{ os_selinux_policy }}"
+    state: "{{ os_selinux_state }}" # noqa args - see https://github.com/ansible/ansible-lint/issues/2930
+  vars: 
+    ansible_python_interpreter: /usr/bin/python3.6

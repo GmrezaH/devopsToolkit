@@ -1,0 +1,19 @@
+---
+
+- name: docker preparation
+  ansible.builtin.import_tasks: prepare.yml
+  tags:
+    - docker
+    - docker_prepare
+
+- name: docker installation
+  ansible.builtin.import_tasks: install.yml
+  tags:
+    - docker
+    - docker_install
+
+- name: docker configuration
+  ansible.builtin.import_tasks: config.yml
+  tags:
+    - docker
+    - docker_config

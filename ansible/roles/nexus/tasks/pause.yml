@@ -1,0 +1,16 @@
+- name: Create Cleanup Policies Confirmation
+  pause:
+    prompt: "Please manually create the cleanup policies named yum, apt, raw, pypi, helm and docker in Nexus. After creation, type 'ok' to confirm and proceed:"
+  register: reset_confirmation_prompt
+  run_once: true
+  when:
+    - not (skip_confirmation | default(false) | bool)
+    - reset_confirmation is not defined
+
+- name: Check confirmation
+  fail:
+    msg: "Confirmation failed"
+  when:
+    - not reset_confirmation | default(false) | bool
+    - not reset_confirmation_prompt.user_input | lower | default("") == "ok"
+

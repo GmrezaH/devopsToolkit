@@ -1,0 +1,12 @@
+---
+service_dir: "{{ project_dir }}/runner"
+runner_image_tag: alpine3.21-v18.3.1
+
+runner:
+  concurrent: 2
+  name: testbed-runner
+  endpoint: https://gitlab.testbed.moh
+  token: glrt-DqW_bu6oHXgYl4YqarlptG86MQp0OjEKdToxCw.01.120lubh8p
+  default_image: docker:latest
+  hosts: 
+    - "gitlab.testbed.moh:192.168.59.16"

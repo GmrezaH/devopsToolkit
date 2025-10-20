@@ -1,0 +1,26 @@
+{
+{% if docker_config.proxy.enabled %}
+  "proxies": {
+    "http-proxy": "{{ http_proxy_url }}",
+    "https-proxy": "{{ https_proxy_url }}",
+    "no-proxy": "{{ no_proxy_url }}"
+  },
+{% endif %}
+{% if docker_config.registry_mirror.enabled %}
+  "registry-mirrors": ["{{ docker_config.registry_mirror.urls }}"],
+{% endif %}
+{% if docker_config.insecure_registry.enabled %}
+  "insecure-registries" : ["{{ docker_config.insecure_registry.urls }}"],
+{% endif %}
+{% if docker_config.logging.enabled %}
+  "log-opts": {
+    "max-size": "{{ docker_config.logging.max_size }}",
+    "max-file": "{{ docker_config.logging.max_file }}",
+    "labels": "{{ docker_config.logging.labels }}"
+    },
+{% endif %}
+{% if docker_config.experimental.enabled %}
+  "experimental": true,
+{% endif %}
+  "live-restore": {{ docker_config.live_restore.enabled | lower }}
+}

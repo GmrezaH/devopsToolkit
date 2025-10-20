@@ -1,0 +1,34 @@
+---
+
+- name: create docker config directory
+  ansible.builtin.file:
+    path: /etc/docker
+    state: directory
+    mode: "0775"
+    owner: root
+    group: root
+
+- name: create docker daemon.json
+  ansible.builtin.template:
+    src: etc/docker/daemon.json.j2
+    dest: /etc/docker/daemon.json
+    mode: "0644"
+    owner: root
+    group: root
+  notify: 
+    - restart docker
+
+      #- name: add users {{ item }} to docker group
+      #  ansible.builtin.user:
+      #    name: "{{ item }}"
+      #    groups: docker
+      #    append: true
+      #    state: present
+      #
+      #- name: sets ACL for {{ item }} on /run/docker.sock
+      #  ansible.posix.acl:
+      #    path: /run/docker.sock
+      #    entity: "{{ item }}"
+      #    etype: user
+      #    permissions: rw
+      #    state: present

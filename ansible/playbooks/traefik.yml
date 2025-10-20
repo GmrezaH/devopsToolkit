@@ -1,0 +1,7 @@
+---
+- name: Traefik install and config playbook
+  hosts: all
+  become: true
+  gather_facts: true
+  roles:
+    - traefik

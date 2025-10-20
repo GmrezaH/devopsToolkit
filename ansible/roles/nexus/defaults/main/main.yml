@@ -1,0 +1,261 @@
+---
+service_dir: "{{ project_dir }}/nexus"
+
+# Nexus image tag
+nexus_image_tag: 3.85.0
+
+# Nexus domain
+nexus_main_domain: "repo.{{ main_domain }}"
+nexus_main_url: "https://{{ nexus_main_domain }}"
+
+delete_repository:
+  - maven-snapshots
+  - maven-public
+  - maven-central
+  - nuget-hosted
+  - maven-releases
+  - nuget-group
+  - nuget.org-proxy
+
+create_blob:
+  - apt
+  - docker
+  - raw
+  - helm
+  - pypi
+  - yum
+
+anonymous_config:
+  enabled: true
+  userId: anonymous
+  realmName: NexusAuthorizingRealm
+
+role:
+  id: repo_admin
+  name: repo_admin
+  description: repository admin
+  privileges: nx-repository-admin-*-*-*
+  roles: nx-anonymous
+
+user:
+  id: repo
+  first_name: repo
+  last_name: repo
+  email_address: repo@gmail.com
+  status: active
+  roles_name: repo_admin
+
+create_raw_repository:
+  - name: "raw"
+    # can be "hosted" or "proxy"
+    type: "hosted"
+    blob: "raw"
+    cleanup_policy: "raw"
+    # can be "INLINE" or "ATTACHMENT"
+    content_disposition: "INLINE"
+    # can be "ALLOW", "ALLOW_ONCE" or "DENY". used only in hosted type
+    write_policy: "ALLOW_ONCE"
+
+  - name: "files"
+    # can be "hosted" or "proxy"
+    type: "proxy"
+    blob: "raw"
+    cleanup_policy: "raw"
+    # used only in proxy type
+    remote_url: "https://files.m.daocloud.io"
+    # can be "INLINE" or "ATTACHMENT"
+    content_disposition: "INLINE"
+
+create_pypi_repository:
+  - name: "pip"
+    # can be "hosted" or "proxy"
+    type: "hosted"
+    blob: "pypi"
+    cleanup_policy: "pypi"
+    # can be "ALLOW", "ALLOW_ONCE" or "DENY". used only in hosted type
+    write_policy: "ALLOW_ONCE"
+
+  - name: "pypi"
+    # can be "hosted" or "proxy"
+    type: "proxy"
+    blob: "pypi"
+    cleanup_policy: "pypi"
+    # used only in proxy type
+    remote_url: "https://pypi.org/"
+
+create_helm_repository:
+  - name: "ingress-nginx"
+    # can be "hosted" or "proxy"
+    type: "proxy"
+    blob: "helm"
+    cleanup_policy: "helm"
+    # used only in proxy type
+    remote_url: "https://kubernetes.github.io/ingress-nginx"
+
+  - name: "helm"
+    # can be "hosted" or "proxy"
+    type: "hosted"
+    blob: "helm"
+    cleanup_policy: "helm"
+    # can be "ALLOW", "ALLOW_ONCE" or "DENY". used only in hosted type
+    write_policy: "ALLOW_ONCE"
+
+create_docker_repository:
+  - name: "docker"
+    # can be "hosted" or "proxy"
+    type: "hosted"
+    blob: "docker"
+    cleanup_policy: "docker"
+    repo_domain: "docker.{{ main_domain }}"
+    repo_port: "9090"
+    # can be "ALLOW", "ALLOW_ONCE" or "DENY". used only in hosted type
+    write_policy: "ALLOW_ONCE"
+
+  - name: "hub"
+    # can be "hosted" or "proxy"
+    type: "proxy"
+    blob: "docker"
+    cleanup_policy: "docker"
+    repo_domain: "hub.{{ main_domain }}"
+    repo_port: "9091"
+    # used only in proxy type
+    remote_url: "https://hub.hamdocker.ir"
+    index_type: "HUB"
+
+  - name: "quay"
+    type: "proxy"
+    blob: "docker"
+    cleanup_policy: "docker"
+    remote_url: "https://quay.io"
+    repo_port: "9092"
+    index_type: "REGISTRY"
+    repo_domain: "quay.{{ main_domain }}"
+
+  - name: "k8s"
+    type: "proxy"
+    blob: "docker"
+    cleanup_policy: "docker"
+    remote_url: "https://registry.k8s.io"
+    repo_port: "9093"
+    index_type: "REGISTRY"
+    repo_domain: "k8s.{{ main_domain }}"
+
+  - name: "gcr"
+    type: "proxy"
+    blob: "docker"
+    cleanup_policy: "docker"
+    remote_url: "https://gcr.io"
+    repo_port: "9094"
+    index_type: "REGISTRY"
+    repo_domain: "gcr.{{ main_domain }}"
+
+  - name: "k8s-gcr"
+    type: "proxy"
+    blob: "docker"
+    cleanup_policy: "docker"
+    remote_url: "https://k8s.gcr.io"
+    repo_port: "9095"
+    index_type: "REGISTRY"
+    repo_domain: "k8s-gcr.{{ main_domain }}"
+
+  - name: "github"
+    type: "proxy"
+    blob: "docker"
+    cleanup_policy: "docker"
+    remote_url: "https://ghcr.io"
+    repo_port: "9096"
+    index_type: "REGISTRY"
+    repo_domain: "ghcr.{{ main_domain }}"
+
+create_yum_repository:
+  - name: docker-ce
+    # can be "hosted" or "proxy"
+    type: "proxy"
+    blob: "yum"
+    cleanup_policy: "yum"
+    repodata_depth: 5
+    # used only in proxy type
+    remote_url: "https://download.docker.com/linux/rhel/9/x86_64/stable"
+
+  - name: baseos
+    # can be "hosted" or "proxy"
+    type: "proxy"
+    blob: "yum"
+    cleanup_policy: "yum"
+    repodata_depth: 5
+    # used only in proxy type
+    remote_url: "http://dl.rockylinux.org/pub/rocky/9/BaseOS/x86_64/os/"
+
+  - name: appstream
+    # can be "hosted" or "proxy"
+    type: "proxy"
+    blob: "yum"
+    cleanup_policy: "yum"
+    repodata_depth: 5
+    # used only in proxy type
+    remote_url: "http://dl.rockylinux.org/pub/rocky/9/AppStream/x86_64/os/"
+
+  - name: epel
+    # can be "hosted" or "proxy"
+    type: "proxy"
+    blob: "yum"
+    cleanup_policy: "yum"
+    repodata_depth: 5
+    # used only in proxy type
+    remote_url: "https://dl.fedoraproject.org/pub/epel/9/Everything/x86_64/"
+
+  - name: el9
+    # can be "hosted" or "proxy"
+    type: "hosted"
+    blob: "yum"
+    cleanup_policy: "yum"
+    repodata_depth: 5
+    # can be "ALLOW", "ALLOW_ONCE" or "DENY". used only in hosted type
+    write_policy: "ALLOW_ONCE"
+
+create_apt_repository:
+  - name: "ubuntu"
+    # can be "hosted" or "proxy"
+    type: "proxy"
+    remote_url: "http://archive.ubuntu.com/ubuntu"
+    distribution: "jammy,jammy-updates,jammy-backports,focal"
+    blob: "apt"
+    cleanup_policy: "apt"
+    # can be "ALLOW", "ALLOW_ONCE" or "DENY". used only in hosted type
+    write_policy: "ALLOW_ONCE"
+
+  - name: "ubuntu-docker"
+    type: "proxy"
+    remote_url: "https://download.docker.com/linux/ubuntu"
+    distribution: "jammy"
+    blob: "apt"
+    cleanup_policy: "apt"
+
+  - name: "ubuntu-security"
+    type: "proxy"
+    remote_url: "http://security.ubuntu.com/ubuntu"
+    distribution: "jammy-security"
+    blob: "apt"
+    cleanup_policy: "apt"
+
+  - name: "debian-docker"
+    type: "proxy"
+    remote_url: "https://download.docker.com/linux/debian/"
+    distribution: "bookworm"
+    blob: "apt"
+    cleanup_policy: "apt"
+
+  - name: "debian-security"
+    type: "proxy"
+    remote_url: "https://security.debian.org"
+    distribution: "bookworm-security"
+    blob: "apt"
+    cleanup_policy: "apt"
+
+  - name: "debian"
+    type: "proxy"
+    remote_url: "https://deb.debian.org/debian"
+    distribution: "bookworm,bookworm-backports,bookworm-updates"
+    blob: "apt"
+    cleanup_policy: "apt"
+

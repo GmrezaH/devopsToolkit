@@ -1,0 +1,32 @@
+---
+- name: install docker dependencies
+  ansible.builtin.package:
+    name: "{{ docker_dependencies }}"
+    state: present
+  when:
+    - docker_dependencies is defined
+    - docker_dependencies | count > 0
+
+- name: install official docker repositories for debian based
+  when:
+    - ansible_os_family | lower == 'debian'
+  ansible.builtin.template:
+    src: etc/apt/sources.list.d/docker-ce.list.j2
+    dest: /etc/apt/sources.list.d/docker-ce.list
+    mode: 0644
+    owner: root
+    group: root
+
+- name: install official docker repositories for redhat based
+  when:
+    - ansible_os_family | lower == 'redhat'
+  ansible.builtin.template:
+    src: etc/yum.repos.d/docker-ce.repo.j2
+    dest: /etc/yum.repos.d/docker-ce.repo
+    mode: 0644
+    owner: root
+    group: root
+
+- name: update package cache
+  ansible.builtin.package:
+    update_cache: true

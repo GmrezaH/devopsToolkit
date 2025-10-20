@@ -1,0 +1,7 @@
+---
+- name: Runner install and config playbook
+  hosts: all
+  become: true
+  gather_facts: true
+  roles:
+    - runner

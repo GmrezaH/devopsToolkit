@@ -1,0 +1,45 @@
+---
+- name: Creates directory
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - "{{ backups_dir }}"
+    - ~/.aws
+
+- name: Template a file to path
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - { src: "gitlab_config_backup.sh.j2", dest: "{{ backups_dir }}/gitlab_config_backup.sh", mode: '0744' }
+    - { src: "credentials.j2", dest: "~/.aws/credentials", mode: '0600' }
+
+- name: Creates a cron file under /etc/cron.d for gitlab backup
+  cron:
+    name: gitlab-data-backup
+    weekday: "*"
+    month: "*"
+    day: "*"
+    hour: "04"
+    minute: "32"
+    user: root
+    job: "/usr/bin/docker exec -i gitlab gitlab-backup create CRON=1"
+    cron_file: gitlab_backup_create
+  tags:
+    - cron
+
+- name: Creates a cron file under /etc/cron.d for gitlab backup
+  cron:
+    name: gitlab-config-backup
+    weekday: "*"
+    month: "*"
+    day: "*"
+    hour: "04"
+    minute: "19"
+    user: root
+    job: "PATH=/usr/local/bin:$PATH /bin/bash {{ backups_dir }}/gitlab_config_backup.sh"
+    cron_file: gitlab_backup_create
+  tags:
+    - cron

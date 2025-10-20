@@ -1,0 +1,82 @@
+---
+#- name: Copy file
+#  ansible.builtin.copy:
+#    src: pip.conf
+#    dest: /etc/pip.conf
+#  tags:
+#    - prepare
+
+- name: Install multi python packages
+  ansible.builtin.pip:
+    name:
+      - docker
+      - PyYAML==5.3.1
+      - docker-compose
+  tags:
+    - prepare
+    - docker
+
+- name: Create a docker network with name
+  community.docker.docker_network:
+    name: "{{ item }}"
+    driver_options:
+      com.docker.network.bridge.name: "{{ item }}"
+  loop:
+    - proxy
+    - internal
+  tags:
+    - prepare
+    - docker
+
+#- name: Creates directory
+#  ansible.builtin.file:
+#    path: "{{ service_dir }}"
+#    state: directory
+#  tags:
+#    - prepare
+
+- name: Creates directory
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - "{{ service_dir }}"
+    - "{{ service_dir }}/dynamic"
+    - "{{ service_dir }}/certs"
+  tags:
+    - prepare
+
+- name: Copy file with owner and permissions
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  vars:
+    folders:
+      - src: compose.yml
+        dest: "{{ service_dir }}/compose.yml"
+      - src: dynamic/
+        dest: "{{ service_dir }}/dynamic/"
+      - src: certs/
+        dest: "{{ service_dir }}/certs/"
+  loop: "{{ folders }}"
+  tags:
+    - prepare
+
+- name: Template a file to path
+  ansible.builtin.template:
+    src: .env.j2
+    dest: "{{ service_dir }}/.env"
+  tags:
+    - prepare
+
+- name: Pull images for project
+  community.docker.docker_compose_v2_pull:
+    project_src: "{{ service_dir }}"
+  tags:
+    - pull
+
+- name: deploy Docker Compose stack
+  community.docker.docker_compose_v2:
+    project_src: "{{ service_dir }}"
+  tags:
+    - deploy

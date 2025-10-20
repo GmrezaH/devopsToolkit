@@ -1,0 +1,9 @@
+---
+# traefik domain
+traefik_domain: "traefik.{{ main_domain }}"
+
+# traefik service directory
+service_dir: "{{ project_dir }}/traefik"
+
+# traefik image tag
+traefik_image_tag: "v3.5"
