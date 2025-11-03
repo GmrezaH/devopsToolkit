@@ -352,14 +352,8 @@ cephObjectStores:
       enabled: true
       # port: 80
       annotations:
-        cert-manager.io/cluster-issuer: cluster-ca-issuer
-        nginx.ingress.kubernetes.io/ssl-redirect: "true"
+        nginx.ingress.kubernetes.io/proxy-body-size: 64m
       host:
         name: objectstore.ceph.example.com
         path: /
         pathType: Prefix
-      tls:
-      - hosts:
-          - objectstore.ceph.example.com
-        secretName: objectstore.ceph.example.com-secret-tls
-      ingressClassName: nginx
