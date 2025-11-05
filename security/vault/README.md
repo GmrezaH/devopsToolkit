@@ -340,7 +340,7 @@ Wait for a few minutes and initialize and unseal `vault-0` pod.
 
 1. Exit the `vault-1` pod
 
-   ```
+   ```sh
    exit
    ```
 
