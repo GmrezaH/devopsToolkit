@@ -138,6 +138,17 @@ A role is a logical name that maps to a policy used to generate those credential
 
 ## Request a certificate
 
+Execute the following command to request a new certificate for the `test.example.com` domain based on the `example-dot-com` role.
+
+```sh
+vault write pki_int/issue/example-dot-com common_name="test.example.com" ttl="24h"
+```
+
+The response has the PEM-encoded private key, key type and certificate serial number.
+
+> [!NOTE]
+> Keep certificate lifetimes short to align with Vault's philosophy of short-lived secrets.
+
 ## Automate leaf certificate renewal
 
 ### Vault agent templates
@@ -148,7 +159,7 @@ A role is a logical name that maps to a policy used to generate those credential
 
 - [Build your own certificate authority (CA)](https://developer.hashicorp.com/vault/tutorials/pki/pki-engine)
 - [PKI design white paper](https://www.hashicorp.com/en/vault-pki)
-- Browse our full documentation on Vault [PKI secrets engine capabilities](https://developer.hashicorp.com/vault/docs/secrets/pki)
-- Get hands-on experience with [Vault PKI tutorials](https://developer.hashicorp.com/vault/docs/secrets/pki#tutorial)
+- [PKI secrets engine capabilities](https://developer.hashicorp.com/vault/docs/secrets/pki)
+- [Vault PKI tutorials](https://developer.hashicorp.com/vault/docs/secrets/pki#tutorial)
 - Reference the [PKI secrets engine API](https://developer.hashicorp.com/vault/api-docs/secret/pki)
 - Vault Agent [support for automatically renewing requested certificates](https://developer.hashicorp.com/vault/docs/agent-and-proxy/agent/template#certificates)
