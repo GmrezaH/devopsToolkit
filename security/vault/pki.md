@@ -270,7 +270,7 @@ The Kubernetes auth method should be used when:
    It is recommended to use a different Vault role each per Issuer or ClusterIssuer. The `audience` allows you to restrict the Vault role to a single Issuer or ClusterIssuer. The syntax is the following:
 
    - **Issuer**: "vault://namespace/issuer-name"
-   - **ClusterIssuer**: vault://cluster-issuer-name"
+   - **ClusterIssuer**: "vault://cluster-issuer-name"
 
 1. Finally, you can create your Issuer:
 
