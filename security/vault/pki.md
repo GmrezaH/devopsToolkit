@@ -2,6 +2,10 @@
 
 The PKI secrets engine generates dynamic X.509 certificates. With this secrets engine, services can get certificates without going through the usual manual process of generating a private key and CSR, submitting to a CA, and waiting for a verification and signing process to complete. Vault's built-in authentication and authorization mechanisms provide the verification functionality.
 
+<div align="center">
+  <img src="../../images/vault-pki.png" alt="Hashicorp Vault PKI architecture" />
+</div>
+
 ## Prerequisites
 
 - A Vault environment. Refer to the [Vault install guide](./README.md) to install Vault.
@@ -11,7 +15,7 @@ The PKI secrets engine generates dynamic X.509 certificates. With this secrets e
 
 To perform all tasks demonstrated in this tutorial, your policy must include the following capabilities:
 
-```hcl
+```sh
 # Enable secrets engine
 path "sys/mounts/*" {
   capabilities = [ "create", "read", "update", "delete", "list" ]
@@ -56,7 +60,7 @@ Generate a self-signed root certificate using PKI secrets engine.
    vault write -field=certificate pki/root/generate/internal \
         common_name="example.com" \
         issuer_name="root-2025" \
-        ttl=87600h > root_2025_ca.crt
+        ttl=87600h > /tmp/root_2025_ca.crt
    ```
 
    This generates a new self-signed CA certificate and private key. Vault automatically revokes the generated root at the end of its lease period (TTL). The CA certificate signs its own Certificate Revocation List (CRL).
@@ -105,21 +109,38 @@ Create an intermediate CA using the root CA you regenerated in the first step.
    vault secrets tune -max-lease-ttl=43800h pki_int
    ```
 
-1. Use the pki issue command to handle the intermediate CA generation process.
+1. Execute the following command to generate an intermediate and save the CSR as `pki_intermediate.csr`.
 
    ```sh
-   vault pki issue \
-         --issuer_name=example-dot-com-intermediate \
-         /pki/issuer/a13b7db8-58f2-d926-64fc-bd39c9e6950c \
-         /pki_int/ \
-         common_name="example.com Intermediate Authority" \
-         o="example" \
-         ou="education" \
-         key_type="rsa" \
-         key_bits="4096" \
-         max_depth_len=1 \
-         permitted_dns_domains="test.example.com" \
-         ttl="43800h"
+   exit
+
+   kubectl exec vault-0 -it -n vault -- \
+      vault write -format=json pki_int/intermediate/generate/internal \
+        common_name="example.com Intermediate Authority" \
+        issuer_name="example-dot-com-intermediate" \
+        | jq -r '.data.csr' > pki_intermediate.csr
+
+   kubectl cp pki_intermediate.csr vault/vault-0:/tmp
+   ```
+
+1. Sign the intermediate certificate with the root CA private key, and save the generated certificate as `intermediate.cert.pem`.
+
+   ```sh
+   kubectl exec vault-0 -it -n vault -- \
+      vault write -format=json pki/root/sign-intermediate \
+        issuer_ref="root-2025" \
+        csr=@/tmp/pki_intermediate.csr \
+        format=pem_bundle ttl="43800h" \
+        | jq -r '.data.certificate' > intermediate.cert.pem
+
+   kubectl cp intermediate.cert.pem vault/vault-0:/tmp
+   ```
+
+1. After signing the CSR and the root CA returns a certificate, it can be imported back into Vault.
+
+   ```sh
+   kubectl exec vault-0 -it -n vault -- \
+      vault write pki_int/intermediate/set-signed certificate=@/tmp/intermediate.cert.pem
    ```
 
 ## Create a role
@@ -129,10 +150,13 @@ A role is a logical name that maps to a policy used to generate those credential
 1. Create a role named `example-dot-com` which allows subdomains, and specify the default issuer ref ID as the value of `issuer_ref`.
 
    ```sh
+   kubectl exec vault-0 -it -n vault -- sh
+
    vault write pki_int/roles/example-dot-com \
         issuer_ref="$(vault read -field=default pki_int/config/issuers)" \
-        allowed_domains="example.com" \
+        allowed_domains="example.com,svc.cluster.local,svc" \
         allow_subdomains=true \
+        allow_wildcard_certificates=true \
         max_ttl="720h"
    ```
 
@@ -151,15 +175,151 @@ The response has the PEM-encoded private key, key type and certificate serial nu
 
 ## Automate leaf certificate renewal
 
-### Vault agent templates
-
 ### Cert-manager integration
+
+In order to request signing of certificates by `Vault`, the issuer must be able to properly authenticate against it. `cert-manager` provides multiple approaches to authenticating to Vault which are detailed below.
+
+Vault auth type cert-manager issuer configuration
+
+- A. Authenticating with a Vault `AppRole`
+- B. Authenticating with a Vault `Token`
+- C. Authenticating with Kubernetes Service Accounts > Use `JWT/OIDC` Auth
+- C. Authenticating with Kubernetes Service Accounts > Use `Kubernetes` Auth
+
+#### Vault Authentication Method: Use Kubernetes Auth
+
+The Kubernetes auth method should be used when:
+
+- Your Vault server is running inside the Kubernetes cluster.
+- Or, your Kubernetes' cluster OIDC discovery endpoint is not reachable from the Vault server, but Vault can reach the Kubernetes API server.
+
+1. Enable the `kubernetes` secrets engine at the `kubernetes` path and configure it to use the kubernetes cluster.
+
+   ```sh
+   kubectl config view --minify --flatten -ojson \
+     | jq -r '.clusters[].cluster."certificate-authority-data"' \
+     | base64 -d > /tmp/cacrt
+
+   kubectl cp /tmp/cacrt vault/vault-0:/tmp
+
+   kubectl -n vault exec -ti vault-0 -- \
+      vault auth enable -path=kubernetes kubernetes
+
+   kubectl -n vault exec -ti vault-0 -- \
+      vault write auth/kubernetes/config \
+        kubernetes_host=https://kubernetes.default:443 \
+        kubernetes_ca_cert=@/tmp/cacrt
+   ```
+
+1. Create a Kubernetes Service Account and a matching `Vault` role.
+
+   ```sh
+   kubectl create serviceaccount -n cert-manager vault-issuer
+   ```
+
+1. Then add an RBAC Role so that cert-manager can get tokens for the `ServiceAccount`.
+
+   ```yaml
+   apiVersion: rbac.authorization.k8s.io/v1
+   kind: Role
+   metadata:
+     name: vault-issuer
+     namespace: cert-manager
+   rules:
+     - apiGroups: [""]
+       resources: ["serviceaccounts/token"]
+       resourceNames: ["vault-issuer"]
+       verbs: ["create"]
+   ---
+   apiVersion: rbac.authorization.k8s.io/v1
+   kind: RoleBinding
+   metadata:
+     name: vault-issuer
+     namespace: cert-manager
+   subjects:
+     - kind: ServiceAccount
+       name: cert-manager
+       namespace: cert-manager
+   roleRef:
+     apiGroup: rbac.authorization.k8s.io
+     kind: Role
+     name: vault-issuer
+   ```
+
+1. Create a policy named `pki_int` that enables read access to the PKI secrets engine paths.
+
+   ```sh
+   vault policy write pki_int - <<EOF
+   path "pki_int*"                        { capabilities = ["read", "list"] }
+   path "pki_int/sign/example-dot-com"    { capabilities = ["create", "update"] }
+   path "pki_int/issue/example-dot-com"   { capabilities = ["create"] }
+   EOF
+   ```
+
+1. Then, create the Vault role.
+
+   ```sh
+   vault write auth/kubernetes/role/vault-issuer-role \
+       bound_service_account_names=vault-issuer \
+       bound_service_account_namespaces=cert-manager \
+       audience="vault://vault-issuer" \
+       policies=pki_int \
+       ttl=1m
+   ```
+
+   It is recommended to use a different Vault role each per Issuer or ClusterIssuer. The `audience` allows you to restrict the Vault role to a single Issuer or ClusterIssuer. The syntax is the following:
+
+   - **Issuer**: "vault://namespace/issuer-name"
+   - **ClusterIssuer**: vault://cluster-issuer-name"
+
+1. Finally, you can create your Issuer:
+
+   ```yaml
+   apiVersion: cert-manager.io/v1
+   kind: ClusterIssuer
+   metadata:
+     name: vault-issuer
+     namespace: cert-manager
+   spec:
+     vault:
+       path: pki_int/sign/example-dot-com
+       server: https://vault-active.vault:8200
+       # base64 encoded CA Bundle PEM file
+       caBundle: LS0tL...
+       auth:
+         kubernetes:
+           role: vault-issuer-role
+           mountPath: /v1/auth/kubernetes
+           serviceAccountRef:
+             name: vault-issuer
+   ```
+
+   Replace `ClusterIssuer` with `Issuer` if that is what you want to deploy.
+
+#### Verifying the issuer Deployment
+
+The Vault issuer tests your Vault instance by querying the `v1/sys/health` endpoint, to ensure your Vault instance is unsealed and initialized before requesting certificates. The result of that query will populate the `STATUS` column.
+
+```sh
+kubectl get clusterissuers vault-issuer -o wide
+```
+
+Certificates are now ready to be requested by using the Vault issuer named `vault-issuer` within the cluster.
+
+### Vault agent templates
 
 ## Resources
 
 - [Build your own certificate authority (CA)](https://developer.hashicorp.com/vault/tutorials/pki/pki-engine)
+
 - [PKI design white paper](https://www.hashicorp.com/en/vault-pki)
+
 - [PKI secrets engine capabilities](https://developer.hashicorp.com/vault/docs/secrets/pki)
+
 - [Vault PKI tutorials](https://developer.hashicorp.com/vault/docs/secrets/pki#tutorial)
+
 - Reference the [PKI secrets engine API](https://developer.hashicorp.com/vault/api-docs/secret/pki)
+
 - Vault Agent [support for automatically renewing requested certificates](https://developer.hashicorp.com/vault/docs/agent-and-proxy/agent/template#certificates)
+
+- [Cert Manager Vault issuer configuration](https://cert-manager.io/docs/configuration/vault/)
