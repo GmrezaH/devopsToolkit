@@ -284,7 +284,7 @@ The Kubernetes auth method should be used when:
      vault:
        path: pki_int/sign/example-dot-com
        server: https://vault-active.vault:8200
-       # base64 encoded CA Bundle PEM file
+       # base64 encoded CA Bundle PEM file (Vault CA)
        caBundle: LS0tL...
        auth:
          kubernetes:
