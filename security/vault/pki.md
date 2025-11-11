@@ -157,6 +157,7 @@ A role is a logical name that maps to a policy used to generate those credential
         allowed_domains="example.com,svc.cluster.local,svc" \
         allow_subdomains=true \
         allow_wildcard_certificates=true \
+        require_cn=false \
         max_ttl="720h"
    ```
 
